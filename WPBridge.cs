@@ -349,6 +349,15 @@ namespace Oxide.Plugins
                 PrintDebug($"Player: {player.DisplayName} has {player.AntiHackViolations} antihack violations triggered.");
             }
         }
+        void OnNpcConversationEnded(NPCTalking npcTalking, BasePlayer _player)
+        {
+            var player = FindExistingPlayer(_player.UserIDString);
+            if (player != null)
+            {
+                player.NPCSpeaks++;
+                PrintDebug($"Player: {player.DisplayName} has spoken to an NPC {player.NPCSpeaks} times.");
+            }
+        }
 
         // Entity
         void OnEntityTakeDamage(BaseCombatEntity entity, HitInfo info)
@@ -541,6 +550,7 @@ namespace Oxide.Plugins
             public int Respawns { get; internal set; }
             public int RocketsLaunched { get; internal set; }
             public int AntiHackViolations { get; internal set; }
+            public int NPCSpeaks { get; internal set; }
 
             public void Clear()
             {
@@ -568,6 +578,7 @@ namespace Oxide.Plugins
                 Respawns = 0;
                 RocketsLaunched = 0;
                 AntiHackViolations = 0;
+                NPCSpeaks = 0;
             }
 
             public override string ToString()
@@ -598,7 +609,8 @@ namespace Oxide.Plugins
                     $"Map markers added: {MapMarkers}, " +
                     $"Respawns: {Respawns}, " +
                     $"Rockets launched: {RocketsLaunched}, " +
-                    $"Antihack violations triggered: {AntiHackViolations}";
+                    $"Antihack violations triggered: {AntiHackViolations}, " +
+                    $"Spoken to NPC's: {NPCSpeaks}";
             }
         }
 
