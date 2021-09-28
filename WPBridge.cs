@@ -331,9 +331,9 @@ namespace Oxide.Plugins
                 PrintDebug($"Player: {player.DisplayName} have put {player.MapMarkers} map markers.");
             }
         }
-        void OnUserRespawned(IPlayer _player)
+        void OnPlayerRespawned(BasePlayer _player)
         {
-            var player = FindExistingPlayer(_player.Id);
+            var player = FindExistingPlayer(_player.UserIDString);
             if (player != null)
             {
                 player.Respawns++;
