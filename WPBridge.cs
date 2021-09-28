@@ -341,6 +341,7 @@ namespace Oxide.Plugins
             }
         }
 
+
         // Entity
         void OnEntityTakeDamage(BaseCombatEntity entity, HitInfo info)
         {
@@ -399,6 +400,15 @@ namespace Oxide.Plugins
             {
                 player.Shots++;
                 PrintDebug($"Player: {player.DisplayName} have shot {player.Shots} times.");
+            }
+        }
+        void OnRocketLaunched(BasePlayer _player)
+        {
+            var player = FindExistingPlayer(_player.UserIDString);
+            if (player != null)
+            {
+                player.RocketsLaunched++;
+                PrintDebug($"Player: {player.DisplayName} have fired {player.RocketsLaunched} rockets.");
             }
         }
 
@@ -505,6 +515,7 @@ namespace Oxide.Plugins
             public int MeleeAttacks { get; internal set; }
             public int MapMarkers { get; internal set; }
             public int Respawns { get; internal set; }
+            public int RocketsLaunched { get; internal set; }
 
             public void Clear()
             {
@@ -530,6 +541,7 @@ namespace Oxide.Plugins
                 MeleeAttacks = 0;
                 MapMarkers = 0;
                 Respawns = 0;
+                RocketsLaunched = 0;
             }
 
             public override string ToString()
@@ -558,7 +570,8 @@ namespace Oxide.Plugins
                     $"NPC Kills: {NPCKills}, " +
                     $"Melee attacks: {MeleeAttacks}, " +
                     $"Map markers added: {MapMarkers}, " +
-                    $"Respawns: {Respawns}";
+                    $"Respawns: {Respawns}, " +
+                    $"Rockets launched: {RocketsLaunched}";
             }
         }
 
