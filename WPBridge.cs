@@ -321,11 +321,6 @@ namespace Oxide.Plugins
                     }
                 }
             }
-            //var player = FindExistingPlayer(_player.UserIDString);
-            //if (player != null)
-            //{
-                
-            //}
         }
 
         // Entity
