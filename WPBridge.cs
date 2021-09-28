@@ -340,7 +340,15 @@ namespace Oxide.Plugins
                 PrintDebug($"Player: {player.DisplayName} has respawned {player.Respawns} times.");
             }
         }
-
+        void OnPlayerViolation(BasePlayer _player)
+        {
+            var player = FindExistingPlayer(_player.UserIDString);
+            if (player != null)
+            {
+                player.AntiHackViolations++;
+                PrintDebug($"Player: {player.DisplayName} has {player.AntiHackViolations} antihack violations triggered.");
+            }
+        }
 
         // Entity
         void OnEntityTakeDamage(BaseCombatEntity entity, HitInfo info)
@@ -448,6 +456,22 @@ namespace Oxide.Plugins
         #endregion
 
         #region COMMANDS
+
+        // FOR DEBUG
+        [ChatCommand("wpb.antihack")]
+        void AntiHackDebugCommand(BasePlayer _player, string command, string[] args)
+        {
+            if(_player != null && _player.IsAdmin)
+            {
+                var player = FindExistingPlayer(_player.UserIDString);
+                if (player != null)
+                {
+                    player.AntiHackViolations++;
+                    PrintDebug("Antihack++");
+                }
+            }
+        }
+
         [ChatCommand("wpb.stats")]
         void StatsCommand(BasePlayer _player, string command, string[] args)
         {
@@ -516,6 +540,7 @@ namespace Oxide.Plugins
             public int MapMarkers { get; internal set; }
             public int Respawns { get; internal set; }
             public int RocketsLaunched { get; internal set; }
+            public int AntiHackViolations { get; internal set; }
 
             public void Clear()
             {
@@ -542,6 +567,7 @@ namespace Oxide.Plugins
                 MapMarkers = 0;
                 Respawns = 0;
                 RocketsLaunched = 0;
+                AntiHackViolations = 0;
             }
 
             public override string ToString()
@@ -571,7 +597,8 @@ namespace Oxide.Plugins
                     $"Melee attacks: {MeleeAttacks}, " +
                     $"Map markers added: {MapMarkers}, " +
                     $"Respawns: {Respawns}, " +
-                    $"Rockets launched: {RocketsLaunched}";
+                    $"Rockets launched: {RocketsLaunched}, " +
+                    $"Antihack violations triggered: {AntiHackViolations}";
             }
         }
 
