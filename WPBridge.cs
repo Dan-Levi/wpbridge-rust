@@ -322,7 +322,7 @@ namespace Oxide.Plugins
                 }
             }
         }
-        void OnMapMarkerAdd(BasePlayer _player)
+        void OnMapMarkerAdded(BasePlayer _player)
         {
             var player = FindExistingPlayer(_player.UserIDString);
             if (player != null)
