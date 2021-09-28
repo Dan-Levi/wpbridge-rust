@@ -469,8 +469,6 @@ namespace Oxide.Plugins
             }
         }
 
-
-
         #endregion
 
         #region COMMANDS
@@ -533,8 +531,8 @@ namespace Oxide.Plugins
                 DisplayName = displayName;
             }
 
-            public object SteamId { get; internal set; }
-            public object DisplayName { get; internal set; }
+            public string SteamId { get; internal set; }
+            public string DisplayName { get; internal set; }
             public int Joins { get; internal set; }
             public int Leaves { get; internal set; }
             public int Deaths { get; internal set; }
