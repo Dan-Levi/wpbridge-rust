@@ -390,6 +390,15 @@ namespace Oxide.Plugins
                 PrintDebug($"Player: {player.DisplayName} have repaired items {player.RepairedItems} times.");
             }
         }
+        void OnItemResearch(ResearchTable table, Item targetItem, BasePlayer _player)
+        {
+            var player = FindExistingPlayer(_player.UserIDString);
+            if (player != null)
+            {
+                player.ResearchedItems++;
+                PrintDebug($"Player: {player.DisplayName} have researched items {player.ResearchedItems} times.");
+            }
+        }
 
         // Weapon
         void OnExplosiveThrown(BasePlayer _player)
@@ -551,6 +560,7 @@ namespace Oxide.Plugins
             public int RocketsLaunched { get; internal set; }
             public int AntiHackViolations { get; internal set; }
             public int NPCSpeaks { get; internal set; }
+            public int ResearchedItems { get; internal set; }
 
             public void Clear()
             {
@@ -579,6 +589,7 @@ namespace Oxide.Plugins
                 RocketsLaunched = 0;
                 AntiHackViolations = 0;
                 NPCSpeaks = 0;
+                ResearchedItems = 0;
             }
 
             public override string ToString()
@@ -610,7 +621,8 @@ namespace Oxide.Plugins
                     $"Respawns: {Respawns}, " +
                     $"Rockets launched: {RocketsLaunched}, " +
                     $"Antihack violations triggered: {AntiHackViolations}, " +
-                    $"Spoken to NPC's: {NPCSpeaks}";
+                    $"Spoken to NPC's: {NPCSpeaks}, " +
+                    $"Researched items: {ResearchedItems}";
             }
         }
 
