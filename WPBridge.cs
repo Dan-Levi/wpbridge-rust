@@ -331,6 +331,15 @@ namespace Oxide.Plugins
                 PrintDebug($"Player: {player.DisplayName} have put {player.MapMarkers} map markers.");
             }
         }
+        void OnUserRespawned(IPlayer _player)
+        {
+            var player = FindExistingPlayer(_player.Id);
+            if (player != null)
+            {
+                player.Respawns++;
+                PrintDebug($"Player: {player.DisplayName} has respawned {player.Respawns} times.");
+            }
+        }
 
         // Entity
         void OnEntityTakeDamage(BaseCombatEntity entity, HitInfo info)
@@ -495,6 +504,7 @@ namespace Oxide.Plugins
             public int NPCKills { get; internal set; }
             public int MeleeAttacks { get; internal set; }
             public int MapMarkers { get; internal set; }
+            public int Respawns { get; internal set; }
 
             public void Clear()
             {
@@ -519,6 +529,7 @@ namespace Oxide.Plugins
                 NPCKills = 0;
                 MeleeAttacks = 0;
                 MapMarkers = 0;
+                Respawns = 0;
             }
 
             public override string ToString()
@@ -545,8 +556,9 @@ namespace Oxide.Plugins
                     $"Growables gathered: {GrowablesGathered}, " +
                     $"Chats sent: {Chats}, " +
                     $"NPC Kills: {NPCKills}, " +
-                    $"Melee attacks: {MeleeAttacks}," +
-                    $"Map markers added: {MapMarkers}";
+                    $"Melee attacks: {MeleeAttacks}, " +
+                    $"Map markers added: {MapMarkers}, " +
+                    $"Respawns: {Respawns}";
             }
         }
 
