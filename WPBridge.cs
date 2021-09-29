@@ -474,25 +474,25 @@ namespace Oxide.Plugins
         #region COMMANDS
 
         // FOR DEBUG
-        [ChatCommand("wpb.antihack")]
-        void AntiHackDebugCommand(BasePlayer _player, string command, string[] args)
-        {
-            if(_player != null && _player.IsAdmin)
-            {
-                var player = FindExistingPlayer(_player.UserIDString);
-                if (player != null)
-                {
-                    player.AntiHackViolations++;
-                    PrintDebug("Antihack++");
-                }
-            }
-        }
+        //[ChatCommand("wpb.antihack")]
+        //void AntiHackDebugCommand(BasePlayer _player, string command, string[] args)
+        //{
+        //    if(_player != null && _player.IsAdmin)
+        //    {
+        //        var player = FindExistingPlayer(_player.UserIDString);
+        //        if (player != null)
+        //        {
+        //            player.AntiHackViolations++;
+        //            PrintDebug("Antihack++");
+        //        }
+        //    }
+        //}
 
         [ChatCommand("wpb.stats")]
         void StatsCommand(BasePlayer _player, string command, string[] args)
         {
             var player = FindExistingPlayer(_player.UserIDString);
-            if(player != null) PrintToChat(player.ToString());
+            if (player != null) _player.ChatMessage(player.ToString());
         }
         #endregion
 
