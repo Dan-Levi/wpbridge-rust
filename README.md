@@ -8,6 +8,7 @@ WPBridge integrates your Wordpress site with a Rust server to show player statis
 ## Current features
 
 + Communication with Wordpress server via WP REST API.
+
 ## How to install
 
 + Press the green Code button above and Download ZIP.
