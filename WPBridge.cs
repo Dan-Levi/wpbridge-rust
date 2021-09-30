@@ -20,6 +20,8 @@ namespace Oxide.Plugins
         Timer dataTimer;
         //Player data
         static List<PlayerStats> PlayersData = new List<PlayerStats>();
+
+        static string ServerIp;
         #endregion
 
         #region CONFIGURATION
@@ -70,15 +72,38 @@ namespace Oxide.Plugins
 
         void WPBridgeInit()
         {
-            var configCheck = CheckConfig();
-            if (!configCheck.Key)
-            {
-                PrintError(configCheck.Value);
-                Interface.Oxide.UnloadPlugin("WPBridge");
+            GetServerIP((ip) => {
+                if(ip == null)
+                {
+                    PrintError($"Couldn't fetch IP from icanhazip.com");
+                    Interface.Oxide.UnloadPlugin("WPBridge");
+                    return;
+                }
+                PrintDebug($"External IP is {ip}");
+                ServerIp = ip;
+                var configCheck = CheckConfig();
+                if (!configCheck.Key)
+                {
+                    PrintError(configCheck.Value);
+                    Interface.Oxide.UnloadPlugin("WPBridge");
+                    return;
+                }
+                PrintDebug(configCheck.Value);
+                ValidateSecret();
+            });
+        }
+
+        private void GetServerIP(Action<string> p)
+        {
+            webrequest.Enqueue("http://icanhazip.com", "", (responseCode, responseString) => {
+                if (responseCode != 200)
+                {
+                    p(null);
+                    return;
+                }
+                p(responseString);
                 return;
-            }
-            PrintDebug(configCheck.Value);
-            ValidateSecret();
+            }, this, Core.Libraries.RequestMethod.GET);
         }
 
         #endregion
@@ -92,6 +117,7 @@ namespace Oxide.Plugins
 
         public class WPRequestRustServerInfo
         {
+            public string Ip = ServerIp;
             public int Port = ConVar.Server.port;
             public string Level = ConVar.Server.level;
             public string Identity = ConVar.Server.identity;
