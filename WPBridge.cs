@@ -159,11 +159,12 @@ namespace Oxide.Plugins
 
         private void SendPlayerData()
         {
-            if (BasePlayer.activePlayerList.Count == 0)
-            {
-                PrintDebug("No players online, skipping webrequest.");
-                return;
-            }
+            // TODO: implement a better way, because now if we dont send the request the playercount will never be 0 on server side.
+            //if (BasePlayer.activePlayerList.Count == 0)
+            //{
+            //    PrintDebug("No players online, skipping webrequest.");
+            //    return;
+            //}
             var serializedRequest = JsonConvert.SerializeObject(new WPRequest());
             webrequest.Enqueue($"{_config.Wordpress_Site_URL}wp-json/wpbridge/player-stats", serializedRequest, (responseCode, responseString) =>
             {
