@@ -90,11 +90,28 @@ namespace Oxide.Plugins
             {"Content-Type", "application/json" }
         };
 
+        public class WPRequestRustServerInfo
+        {
+            public int Port = ConVar.Server.port;
+            public string Level = ConVar.Server.level;
+            public string Identity = ConVar.Server.identity;
+            public int Seed = ConVar.Server.seed;
+            public int WorldSize = ConVar.Server.worldsize;
+            public int MaxPlayers = ConVar.Server.maxplayers;
+            public string HostName = ConVar.Server.hostname;
+            public string Description = ConVar.Server.description;
+            public int PlayerCount = BasePlayer.activePlayerList.Count;
+        }
+
         public class WPRequest
         {
             public string Secret = _config.Wordpress_Secret;
             public List<PlayerStats> PlayersData = WPBridge.PlayersData;
-            public int PlayerCount = BasePlayer.activePlayerList.Count;
+            public WPRequestRustServerInfo ServerInfo;
+            public WPRequest()
+            {
+                ServerInfo = new WPRequestRustServerInfo();
+            }
         }
             
 
