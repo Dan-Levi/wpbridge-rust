@@ -21,13 +21,14 @@ namespace Oxide.Plugins
         //Player data
         static List<PlayerStats> PlayersData = new List<PlayerStats>();
 
-        static string ServerIp;
         #endregion
 
         #region CONFIGURATION
 
         private class Configuration
         {
+            [JsonProperty(PropertyName = "External_IP")]
+            public string External_IP = "PASTE_EXTERNAL_IP_HERE";
             [JsonProperty(PropertyName = "Wordpress_Site_URL")]
             public string Wordpress_Site_URL = "PASTE_WORDPRESS_SITE_URL_HERE";
             [JsonProperty(PropertyName = "Wordpress_Secret")]
@@ -58,6 +59,7 @@ namespace Oxide.Plugins
 
         KeyValuePair<bool, string> CheckConfig()
         {
+            if (_config.External_IP == "" || _config.External_IP == "PASTE_EXTERNAL_IP_HERE") return new KeyValuePair<bool, string>(false, "External IP needs to be set.");
             if (_config.Wordpress_Site_URL == "" || _config.Wordpress_Site_URL == "PASTE_WORDPRESS_SITE_URL_HERE") return new KeyValuePair<bool, string>(false, "Wordpress Site Url needs to be set.");
             if (!ValidHttpURL(_config.Wordpress_Site_URL)) return new KeyValuePair<bool, string>(false, "Wordpress Site Url seems to be invalid.");
             if (!_config.Wordpress_Site_URL.EndsWith("/")) return new KeyValuePair<bool, string>(false, "Wordpress Site Url must end with a trailing slash. [http://www.your-wordpress-site.com/]");
@@ -72,25 +74,16 @@ namespace Oxide.Plugins
 
         void WPBridgeInit()
         {
-            GetServerIP((ip) => {
-                if(ip == null)
-                {
-                    PrintError($"Couldn't fetch IP from icanhazip.com");
-                    Interface.Oxide.UnloadPlugin("WPBridge");
-                    return;
-                }
-                PrintDebug($"External IP is {ip}");
-                ServerIp = ip;
-                var configCheck = CheckConfig();
-                if (!configCheck.Key)
-                {
-                    PrintError(configCheck.Value);
-                    Interface.Oxide.UnloadPlugin("WPBridge");
-                    return;
-                }
-                PrintDebug(configCheck.Value);
-                ValidateSecret();
-            });
+            var configCheck = CheckConfig();
+            if (!configCheck.Key)
+            {
+                PrintError(configCheck.Value);
+                Interface.Oxide.UnloadPlugin("WPBridge");
+                return;
+            }
+            PrintDebug(configCheck.Value);
+            ValidateSecret();
+           
         }
 
         private void GetServerIP(Action<string> p)
@@ -117,7 +110,7 @@ namespace Oxide.Plugins
 
         public class WPRequestRustServerInfo
         {
-            public string Ip = ServerIp;
+            public string Ip = _config.External_IP;
             public int Port = ConVar.Server.port;
             public string Level = ConVar.Server.level;
             public string Identity = ConVar.Server.identity;
@@ -140,7 +133,6 @@ namespace Oxide.Plugins
             }
         }
             
-
         public class WPResponseData
         {
             public int status;
@@ -185,12 +177,6 @@ namespace Oxide.Plugins
 
         private void SendPlayerData()
         {
-            // TODO: implement a better way, because now if we dont send the request the playercount will never be 0 on server side.
-            //if (BasePlayer.activePlayerList.Count == 0)
-            //{
-            //    PrintDebug("No players online, skipping webrequest.");
-            //    return;
-            //}
             var serializedRequest = JsonConvert.SerializeObject(new WPRequest());
             webrequest.Enqueue($"{_config.Wordpress_Site_URL}wp-json/wpbridge/player-stats", serializedRequest, (responseCode, responseString) =>
             {
