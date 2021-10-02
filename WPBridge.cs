@@ -9,11 +9,12 @@ using Newtonsoft.Json.Serialization;
 namespace Oxide.Plugins
 {
     [Info("WPBridge", "Murky", "0.0.2")]
-    [Description("WPBridge integrates your Rust server with Wordpress, making it possible to show nearly realtime player and server statistics on your Wordpress site.")]
+    [Description("WPBridge integrates Rust servers with Wordpress, making it possible to show nearly realtime player and server statistics on your Wordpress site.")]
     internal class WPBridge : RustPlugin
     {
 
         #region VARIABLES
+
         //Config
         static Configuration _config = new Configuration();
         //Timer
@@ -124,6 +125,7 @@ namespace Oxide.Plugins
         {
             public int status;
         }
+
         public class WPResponse
         {
             public string code;
@@ -193,9 +195,6 @@ namespace Oxide.Plugins
 
             }, this, Core.Libraries.RequestMethod.POST, WPRequestHeaders);
         }
-
-        
-
 
         #endregion
 
