@@ -23,6 +23,7 @@ WPBridge integrates your Wordpress site with a Rust server to show player statis
 
 
 ### The variables
++ `External_IP`: The external IP for your Rust server.
 + `Wordpress_Site_URL`: The url to your wordpress installation with a trailing slash.
 + `Wordpress_Secret`: The secret generated from WPBridge plugin for Wordpress.
 + `Player_Data_Update_Interval`: The interval between everytime Rust sends data to Wordpress.
@@ -32,8 +33,9 @@ WPBridge integrates your Wordpress site with a Rust server to show player statis
 **Example:**
 
         {
+            "External_IP": "98.765.43.21",
             "Wordpress_Site_URL": "http://your-wordpress-site.com/",
-            "Wordpress_Secret": "sdfg*!sadfADTWJ",
+            "Wordpress_Secret": "svp*edf&g$s.e",
             "Player_Data_Update_Interval": 30,
             "Print_Debug_To_Console": false
         }
