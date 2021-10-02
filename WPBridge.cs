@@ -86,19 +86,6 @@ namespace Oxide.Plugins
            
         }
 
-        private void GetServerIP(Action<string> p)
-        {
-            webrequest.Enqueue("http://icanhazip.com", "", (responseCode, responseString) => {
-                if (responseCode != 200)
-                {
-                    p(null);
-                    return;
-                }
-                p(responseString);
-                return;
-            }, this, Core.Libraries.RequestMethod.GET);
-        }
-
         #endregion
 
         #region WEBREQUESTS
@@ -147,7 +134,7 @@ namespace Oxide.Plugins
         void ValidateSecret()
         {
             var serializedRequest = JsonConvert.SerializeObject(new WPRequest());
-            webrequest.Enqueue($"{_config.Wordpress_Site_URL}wp-json/wpbridge/secret", serializedRequest, (responseCode, responseString) => {
+            webrequest.Enqueue($"{_config.Wordpress_Site_URL}index.php/wp-json/wpbridge/secret", serializedRequest, (responseCode, responseString) => {
                 var wpResponse = JsonConvert.DeserializeObject<WPResponse>(responseString, new JsonSerializerSettings
                 {
                     Error = delegate (object sender, ErrorEventArgs args)
@@ -178,7 +165,7 @@ namespace Oxide.Plugins
         private void SendPlayerData()
         {
             var serializedRequest = JsonConvert.SerializeObject(new WPRequest());
-            webrequest.Enqueue($"{_config.Wordpress_Site_URL}wp-json/wpbridge/player-stats", serializedRequest, (responseCode, responseString) =>
+            webrequest.Enqueue($"{_config.Wordpress_Site_URL}index.php/wp-json/wpbridge/player-stats", serializedRequest, (responseCode, responseString) =>
             {
                 var wpResponse = JsonConvert.DeserializeObject<WPResponse>(responseString, new JsonSerializerSettings
                 {
