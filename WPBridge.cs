@@ -8,8 +8,8 @@ using Newtonsoft.Json.Serialization;
 
 namespace Oxide.Plugins
 {
-    [Info("WPBridge", "Murky", "0.0.2")]
-    [Description("WPBridge integrates Rust servers with Wordpress, making it possible to show nearly realtime player and server statistics on your Wordpress site.")]
+    [Info("WordPress Integration Plugin", "Murky", "1.0.0")]
+    [Description("WordPress Integration Plugin does exactly what it says, it integrates Rust servers with Wordpress, making it possible to show always up to date player and server statistics on your Wordpress site.")]
     internal class WPBridge : RustPlugin
     {
 
@@ -21,6 +21,10 @@ namespace Oxide.Plugins
         Timer dataTimer;
         //Player data
         static List<PlayerStats> PlayersData = new List<PlayerStats>();
+        //Players that have disconnected
+        static List<string> PlayersLeftSteamIds = new List<string>();
+        //Group name for reserved players
+        string ReservedPlayerGroupName = "wipreservedplayers";
 
         #endregion
 
@@ -75,6 +79,15 @@ namespace Oxide.Plugins
 
         void WPBridgeInit()
         {
+            if(!ReservedStatsGroupExists())
+            {
+                if(!CreateReservedStatsGroup())
+                {
+                    PrintError($"Couldn't create permission group \"{ReservedPlayerGroupName}\". Unloading plugin.");
+                    Interface.Oxide.UnloadPlugin("WPBridge");
+                    return;
+                }
+            }
             var configCheck = CheckConfig();
             if (!configCheck.Key)
             {
@@ -84,7 +97,6 @@ namespace Oxide.Plugins
             }
             PrintDebug(configCheck.Value);
             ValidateSecret();
-           
         }
 
         #endregion
@@ -118,6 +130,18 @@ namespace Oxide.Plugins
             public WPRequest()
             {
                 ServerInfo = new WPRequestRustServerInfo();
+                if(PlayersLeftSteamIds != null && PlayersLeftSteamIds.Count > 0)
+                {
+                    foreach (var player in WPBridge.PlayersData)
+                    {
+                        if(PlayersLeftSteamIds.Contains(player.SteamId))
+                        {
+                            WPBridge.PlayersData.Remove(player);
+                        }
+                    }
+                    PlayersData = WPBridge.PlayersData;
+                    PlayersLeftSteamIds.Clear();
+                }
             }
         }
             
@@ -204,6 +228,7 @@ namespace Oxide.Plugins
         void OnServerInitialized()
         {
             SaveActivePlayersData();
+            CheckActivePlayersAreReserved();
         }
         void Init()
         {
@@ -240,6 +265,7 @@ namespace Oxide.Plugins
         }
         void OnUserConnected(IPlayer _player)
         {
+            if (PlayerIsReserved(_player.Id)) return; // Player is reserved and statistics should not be shared
             var player = FindExistingPlayer(_player.Id);
             if (player == null)
             {
@@ -259,6 +285,7 @@ namespace Oxide.Plugins
             {
                 player.Leaves++;
                 PrintDebug($"Player: {player.DisplayName} have left {player.Leaves} times.");
+                PlayersLeftSteamIds.Add(player.SteamId);
             }
         }
         void OnPlayerDeath(BasePlayer _player, HitInfo info)
@@ -375,6 +402,29 @@ namespace Oxide.Plugins
             }
         }
 
+        void OnPlayerConnected(BasePlayer _player)
+        {
+            if (_player == null) return;
+            if (_player.HasPlayerFlag(BasePlayer.PlayerFlags.ReceivingSnapshot))
+            {
+                timer.Once(2, () => OnPlayerConnected(_player));
+                return;
+            }
+            //Tell the player that stats are stored unless command is used
+            string isReservedString;
+            if (PlayerIsReserved(_player.UserIDString))
+            {
+                isReservedString = "not ";
+                var existingPlayer = FindExistingPlayer(_player.UserIDString);
+                if (existingPlayer != null) RemovePlayer(_player.UserIDString); 
+            } else
+            {
+                isReservedString = "";
+            }
+            _player.ChatMessage($"[WIP] Type /wip.help to see a list of commands");
+            _player.ChatMessage($"[WIP] You are currently {isReservedString}sharing your statistics. You can always toggle this on/off using chatcommand /wip.reserve");
+        }
+
         // Entity
         void OnEntityTakeDamage(BaseCombatEntity entity, HitInfo info)
         {
@@ -489,26 +539,47 @@ namespace Oxide.Plugins
 
         #region COMMANDS
 
-        // FOR DEBUG
-        //[ChatCommand("wpb.antihack")]
-        //void AntiHackDebugCommand(BasePlayer _player, string command, string[] args)
-        //{
-        //    if(_player != null && _player.IsAdmin)
-        //    {
-        //        var player = FindExistingPlayer(_player.UserIDString);
-        //        if (player != null)
-        //        {
-        //            player.AntiHackViolations++;
-        //            PrintDebug("Antihack++");
-        //        }
-        //    }
-        //}
+        [ChatCommand("wip.isreserved")]
+        void IsReserved(BasePlayer _player, string command, string[] args)
+        {
+            string isReservedString = PlayerIsReserved(_player.UserIDString) ? "not " : "";
+            _player.ChatMessage($"[WIP] You are currently {isReservedString}sharing statistics.");
+        }
 
-        [ChatCommand("wpb.stats")]
+        [ChatCommand("wip.reserve")]
+        void ReserveCommand(BasePlayer _player, string command, string[] args)
+        {
+            if (_player == null) return;
+            if(!PlayerIsReserved(_player.UserIDString))
+            {
+                var existingPlayer = FindExistingPlayer(_player.UserIDString);
+                if (existingPlayer != null) RemovePlayer(_player.UserIDString);
+                permission.AddUserGroup(_player.UserIDString, ReservedPlayerGroupName);
+                _player.ChatMessage("[WIP] Reserved. Your statistics are not shared.");
+            } else
+            {
+                var existingPlayer = FindExistingPlayer(_player.UserIDString);
+                if (existingPlayer == null) InsertPlayer(_player.UserIDString,_player.displayName);
+                permission.RemoveUserGroup(_player.UserIDString, ReservedPlayerGroupName);
+                _player.ChatMessage("[WIP] Reservation removed. Your statistics are shared.");
+            }
+        }
+
+        [ChatCommand("wip.help")]
+        void HelpCommand(BasePlayer _player, string command, string[] args)
+        {
+            if (_player == null) return;
+            _player.ChatMessage($"[WIP] " +
+                $"Available commands:\n\n" +
+                $"/wip.reserve\nToggles share/not share statistics.\nDEFAULT: share statistics\n\n" +
+                $"/wip.isreserved\nCheck if you are sharing or not sharing your statistics.");
+        }
+
+        [ChatCommand("wip.stats")]
         void StatsCommand(BasePlayer _player, string command, string[] args)
         {
             var player = FindExistingPlayer(_player.UserIDString);
-            if (player != null) _player.ChatMessage(player.ToString());
+            if (player != null) _player.ChatMessage($"[WIP] {player.ToString()}");
         }
         #endregion
 
@@ -517,6 +588,37 @@ namespace Oxide.Plugins
         {
             if (_config.Debug) PrintWarning($"[DEBUG] {stringToPrint}");
         }
+        #endregion
+
+        #region Permission Group
+
+        void CheckActivePlayersAreReserved()
+        {
+            if(PlayersData != null && PlayersData.Count > 0)
+            {
+                PlayersData.ForEach(p => {
+                    if (PlayerIsReserved(p.SteamId)) RemovePlayer(p.SteamId);
+                });
+            }
+        }
+
+        bool PlayerIsReserved(string userIdString)
+        {
+            return permission.UserHasGroup(userIdString, ReservedPlayerGroupName);
+        }
+
+        bool ReservedStatsGroupExists()
+        {
+            PrintDebug($"Permission group \"{ReservedPlayerGroupName}\" exists.");
+            return permission.GroupExists(ReservedPlayerGroupName);
+        }
+
+        bool CreateReservedStatsGroup()
+        {
+            PrintDebug($"Creating permission group \"{ReservedPlayerGroupName}\".");
+            return permission.CreateGroup(ReservedPlayerGroupName, "Hide my stats", 0);
+        }
+
         #endregion
 
         #region PLAYER DATA
@@ -648,6 +750,11 @@ namespace Oxide.Plugins
                 if (PlayersData == null) PlayersData = new List<PlayerStats>();
                 foreach (var activePlayer in activePlayers)
                 {
+                    if (PlayerIsReserved(activePlayer.UserIDString))
+                    {
+                        PrintDebug($"Player {activePlayer.displayName} ({activePlayer.UserIDString}) -> reserved. Stats not saved.");
+                        continue;
+                    }
                     var existingPlayer = PlayersData.Find(p => p.SteamId.ToString() == activePlayer.UserIDString);
                     if (existingPlayer == null) PlayersData.Add(new PlayerStats(activePlayer.UserIDString, activePlayer.displayName));
                 }
