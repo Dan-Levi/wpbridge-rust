@@ -9,13 +9,13 @@ WordPress Integration Plugin integrates [WordPress](https://wordpress.org/) with
 
 ## Features
 
-+ Player and Server statistics exchange between Rust server and WordPress ([WordPress REST API](https://developer.wordpress.com/docs/api/)).<br>
++ Player and Server statistics exchange between Rust server and WordPress ([WordPress REST API](https://developer.wordpress.com/docs/api/)).
 + Player chat commands
 
 ## Installation
 
-+ Press the green Code button above and Download ZIP.<br>
-+ Extract the archive.<br>
++ Press the green Code button above and Download ZIP.
++ Extract the archive.
 + Copy `WPBridge.cs` from extracted folder to `YOUR_RUST_SERVER\oxide\plugins\` where `YOUR_RUST_SERVER` is the path to your rust server.
 
 ## Configuration
@@ -26,10 +26,10 @@ WordPress Integration Plugin integrates [WordPress](https://wordpress.org/) with
 + Reload the plugin using `o.reload WPBridge`.
 
 ### Variables
-+ `External_IP`: The external IP for your Rust server.<br>
-+ `Wordpress_Site_URL`: The URL to your wordpress installation with a trailing slash.<br>
-+ `Wordpress_Secret`: The unique secret generated from WordPress plugin.<br>
-+ `Player_Data_Update_Interval`: The interval between everytime Rust sends data to WordPress.<br>
++ `External_IP`: The external IP for your Rust server.
++ `Wordpress_Site_URL`: The URL to your wordpress installation with a trailing slash.
++ `Wordpress_Secret`: The unique secret generated from WordPress plugin.
++ `Player_Data_Update_Interval`: The interval between everytime Rust sends data to WordPress.
 + `Print_Debug_To_Console`: Print debug information to Rust Console. `true`: Debug | `false` No debug.
 
 
@@ -45,8 +45,8 @@ WordPress Integration Plugin integrates [WordPress](https://wordpress.org/) with
 
 ## Player chat commands
 
-+ `/wip.help` See a list of commands.<br>
-+ `/wip.isreserved` Check if is reserved or sharing stats.<br>
++ `/wip.help` See a list of commands.
++ `/wip.isreserved` Check if is reserved or sharing stats.
 + `/wip.reserve` Toggles share/reserve statistics. **BY DEFAULT: share**
 
 ## Coming soon
@@ -58,10 +58,10 @@ WordPress Integration Plugin integrates [WordPress](https://wordpress.org/) with
   + No.
 + **Why not just communicate directly with database?**
   
-  + Some hosts accepts external scripts to query database directly, and some hosts don't.<br>
+  + Some hosts accepts external scripts to query database directly, and some hosts don't.
   By default, remote access to database server is disabled for security reasons on most hosts.
 
-**The upside about this** is that WordPress Integration Plugin doesn't care about the database technology, and shouldn't either.<br>As long as the REST API Endpoint responds correctly **the data that is sent could basically be stored in any kind of database and format.**
+**The upside about this** is that WordPress Integration Plugin doesn't care about the database technology, and shouldn't either. As long as the REST API Endpoint responds correctly **the data that is sent could basically be stored in any kind of database and format.**
 
 ## Feedback
 You can reach me on [uMod](https://umod.org/user/Murky), [Github](https://github.com/Dan-Levi), [reddit](https://www.reddit.com/user/Danbannan), [Facebook](https://www.facebook.com/danlevi.no/), [Twitter](https://twitter.com/DanLeviH) or even by [e-mail](danbannan@gmail.com).
