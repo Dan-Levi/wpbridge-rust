@@ -1,6 +1,4 @@
 
-# WordPress Integration Plugin for Rust
-
 Visit [WordPress Integration Plugin for Rust's official website](https://wpbridge.danlevi.no/)
 
 ## Synopsis
