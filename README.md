@@ -48,9 +48,10 @@ WordPress Integration Plugin integrates [WordPress](https://wordpress.org/) with
 + `/wip.isreserved` Check if is reserved or sharing stats.
 + `/wip.reserve` Toggles share/reserve statistics. **BY DEFAULT: share**
 
-## Coming soon
+## Coming in next update
++ Kill feed implementation: `Displays a kill feed on your WordPress site showing who killed who.`
 
-+ More stats, more integration.
+
 
 ## FAQ
 + **Does this plugin have any plugin dependencies?**
