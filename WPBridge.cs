@@ -8,7 +8,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace Oxide.Plugins
 {
-    [Info("WordPress Integration Plugin", "Murky", "1.0.0")]
+    [Info("WordPress Integration Plugin", "Murky", "1.0.1")]
     [Description("WordPress Integration Plugin does exactly what it says, it integrates Rust servers with Wordpress, making it possible to show always up to date player and server statistics on your Wordpress site.")]
     internal class WPBridge : RustPlugin
     {
@@ -19,6 +19,8 @@ namespace Oxide.Plugins
         static Configuration _config = new Configuration();
         //Timer
         Timer dataTimer;
+        //Stopwatch to measure the time it takes from a request is sent to a response is received
+        System.Diagnostics.Stopwatch stopWatch = new System.Diagnostics.Stopwatch();
         //Player data
         static List<PlayerStats> PlayersData = new List<PlayerStats>();
         //Players that have disconnected
@@ -125,24 +127,14 @@ namespace Oxide.Plugins
         public class WPRequest
         {
             public string Secret = _config.Wordpress_Secret;
-            public List<PlayerStats> PlayersData = WPBridge.PlayersData;
+            public List<PlayerStats> PlayersData;
             public WPRequestRustServerInfo ServerInfo;
-            public WPRequest()
+            public WPRequest(List<PlayerStats> _playersData)
             {
                 ServerInfo = new WPRequestRustServerInfo();
-                if(PlayersLeftSteamIds != null && PlayersLeftSteamIds.Count > 0)
-                {
-                    foreach (var player in WPBridge.PlayersData)
-                    {
-                        if(PlayersLeftSteamIds.Contains(player.SteamId))
-                        {
-                            WPBridge.PlayersData.Remove(player);
-                        }
-                    }
-                    PlayersData = WPBridge.PlayersData;
-                    PlayersLeftSteamIds.Clear();
-                }
+                PlayersData = _playersData;
             }
+            
         }
             
         public class WPResponseData
@@ -159,7 +151,7 @@ namespace Oxide.Plugins
 
         void ValidateSecret()
         {
-            var serializedRequest = JsonConvert.SerializeObject(new WPRequest());
+            var serializedRequest = JsonConvert.SerializeObject(new WPRequest(PlayersData));
             webrequest.Enqueue($"{_config.Wordpress_Site_URL}index.php/wp-json/wpbridge/secret", serializedRequest, (responseCode, responseString) => {
                 var wpResponse = JsonConvert.DeserializeObject<WPResponse>(responseString, new JsonSerializerSettings
                 {
@@ -190,9 +182,56 @@ namespace Oxide.Plugins
 
         private void SendPlayerData()
         {
-            var serializedRequest = JsonConvert.SerializeObject(new WPRequest());
+            var request = new WPRequest(PlayersData);
+            var serializedRequest = JsonConvert.SerializeObject(request);
+            
+            if(PlayersLeftSteamIds.Count == 0 && PlayersData.Count == 0)
+            {
+                PrintDebug($"No players and no leaves to report. Pinging WordPress only for Server statistics");
+                stopWatch.Start();
+                webrequest.Enqueue($"{_config.Wordpress_Site_URL}index.php/wp-json/wpbridge/secret", serializedRequest, (responseCode, responseString) => {
+                    var wpResponse = JsonConvert.DeserializeObject<WPResponse>(responseString, new JsonSerializerSettings
+                    {
+                        Error = delegate (object sender, ErrorEventArgs args)
+                        {
+                            PrintError($"[500] -> Failed to deserialize Wordpress response: {responseString}");
+                            Interface.Oxide.UnloadPlugin("WPBridge");
+                            return;
+                        }
+                    });
+                    if (wpResponse == null)
+                    {
+                        PrintError($"Server responded invalid data...");
+                        return;
+                    }
+                    if (wpResponse.data.status != 200)
+                    {
+                        PrintWarning($"[{wpResponse.data.status}] -> {wpResponse.message}");
+                        Interface.Oxide.UnloadPlugin("WPBridge");
+                        return;
+                    }
+                    stopWatch.Stop();
+                    long elapsedSeconds = stopWatch.ElapsedMilliseconds;
+                    PrintDebug($"[WordPressResponse] [200] The exchange took {stopWatch.ElapsedMilliseconds} milliseconds. ResponseMessage => Server stats stored.");
+                    stopWatch.Reset();
+                }, this, Core.Libraries.RequestMethod.POST, WPRequestHeaders);
+                return;
+            }
+
+            float requestSize = (float)(serializedRequest.Length * 2) / 1024;
+            string payloadSizeFormatted = requestSize.ToString("0.00");
+            PrintDebug($"Sending {payloadSizeFormatted}kB of statistics for {PlayersData.Count} players. "); // C# uses Unicode which is 2 bytes per character
+            stopWatch.Start();
             webrequest.Enqueue($"{_config.Wordpress_Site_URL}index.php/wp-json/wpbridge/player-stats", serializedRequest, (responseCode, responseString) =>
             {
+
+                if (PlayersLeftSteamIds.Count > 0)
+                {
+                    PlayersData.RemoveAll(p => { return PlayersLeftSteamIds.Contains(p.SteamId); });
+                    PlayersLeftSteamIds.Clear();
+                }
+
+
                 var wpResponse = JsonConvert.DeserializeObject<WPResponse>(responseString, new JsonSerializerSettings
                 {
                     Error = delegate (object sender, ErrorEventArgs args)
@@ -213,7 +252,10 @@ namespace Oxide.Plugins
                     Interface.Oxide.UnloadPlugin("WPBridge");
                     return;
                 }
-                PrintDebug($"[200] => Server responded: {wpResponse.message}");
+                stopWatch.Stop();
+                long elapsedSeconds = stopWatch.ElapsedMilliseconds;
+                PrintDebug($"[WordPressResponse] [200] The exchange took {stopWatch.ElapsedMilliseconds} milliseconds. ResponseMessage => {wpResponse.message}");
+                stopWatch.Reset();
 
                 ClearPlayerStats();
 
@@ -223,6 +265,12 @@ namespace Oxide.Plugins
         #endregion
 
         #region RUST HOOKS
+
+        // Plugin
+        void Unload()
+        {
+           if (dataTimer != null) dataTimer.Destroy();
+        }
 
         // Server
         void OnServerInitialized()
@@ -581,6 +629,7 @@ namespace Oxide.Plugins
             var player = FindExistingPlayer(_player.UserIDString);
             if (player != null) _player.ChatMessage($"[WIP] {player.ToString()}");
         }
+        
         #endregion
 
         #region DEBUG
@@ -590,7 +639,7 @@ namespace Oxide.Plugins
         }
         #endregion
 
-        #region Permission Group
+        #region PERMISSION GROUP
 
         void CheckActivePlayersAreReserved()
         {
