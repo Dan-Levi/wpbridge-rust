@@ -8,7 +8,8 @@ WordPress Integration Plugin integrates [WordPress](https://wordpress.org/) with
 ## Features
 
 + Player and Server statistics exchange between Rust server and WordPress ([WordPress REST API](https://developer.wordpress.com/docs/api/)).
-+ Player chat commands
++ Tested up to **200 players** online simultaneously.
++ Player chat commands.
 
 ## Installation
 
