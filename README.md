@@ -66,8 +66,8 @@ WordPress Integration Plugin integrates [WordPress](https://wordpress.org/) with
 ## Feedback
 You can reach me on [uMod](https://umod.org/user/Murky), [Github](https://github.com/Dan-Levi), [reddit](https://www.reddit.com/user/Danbannan), [Facebook](https://www.facebook.com/danlevi.no/), [Twitter](https://twitter.com/DanLeviH) or even by [e-mail](danbannan@gmail.com).
 
-### **Thanks** for your interest in WordPress Integration Plugin! <3
-Visited [WordPress Integration Plugin for Rust's official website](https://wpbridge.danlevi.no/) yet?
-
 ## Changelog
 + `1.0.1` - Performance update for bandwith and memory usage [See commit on GitHub](https://github.com/Dan-Levi/wpbridge-rust/commit/377b3347d0c9a9e853d30f632ce5019466ea95aa)  
+
+### **Thanks** for your interest in WordPress Integration Plugin! <3
+Visited [WordPress Integration Plugin for Rust's official website](https://wpbridge.danlevi.no/) yet?
