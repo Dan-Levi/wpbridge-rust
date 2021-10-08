@@ -1,5 +1,5 @@
 
-Visit [WordPress Integration Plugin for Rust's official website](https://wpbridge.danlevi.no/)
+Visit [WordPress Integration Plugin's official website](https://wpbridge.danlevi.no/)
 
 ## Synopsis
 
