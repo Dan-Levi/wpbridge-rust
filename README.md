@@ -5,7 +5,7 @@ Visit [WordPress Integration Plugin for Rust's official website](https://wpbridg
 
 ## Synopsis
 
-WordPress Integration Plugin integrates [WordPress](https://wordpress.org/) with [uMod/Oxide](https://umod.org/games/rust) and enabled Rust server admins to show updated player statistics and server information on their WordPress site.
+WordPress Integration Plugin integrates [WordPress](https://wordpress.org/) with [uMod/Oxide](https://umod.org/games/rust) enabled Rust server admins to show updated player statistics and server information on their WordPress site.
 
 ## Features
 
