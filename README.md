@@ -13,9 +13,8 @@ WordPress Integration Plugin integrates [WordPress](https://wordpress.org/) with
 
 ## Installation
 
-+ Press the green Code button above and Download ZIP.
-+ Extract the archive.
-+ Copy `WPBridge.cs` from extracted folder to `YOUR_RUST_SERVER\oxide\plugins\` where `YOUR_RUST_SERVER` is the path to your rust server.
++ Click the Download Button on the [plugin page](https://umod.org/plugins/word-press-integration-plugin#content)
++ Copy the downloaded `WPBridge.cs` file to `YOUR_RUST_SERVER\oxide\plugins\` where `YOUR_RUST_SERVER` is the path to your rust server.
 
 ## Configuration
 
