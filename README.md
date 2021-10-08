@@ -63,7 +63,7 @@ WordPress Integration Plugin integrates [WordPress](https://wordpress.org/) with
 **The upside about this** is that WordPress Integration Plugin doesn't care about the database technology, and shouldn't either. As long as the REST API Endpoint responds correctly **the data that is sent could basically be stored in any kind of database and format.**
 
 ## Feedback
-You can [create a thread](https://umod.org/plugins/wordpress-bridge/thread/create), submit an issue on [Github](https://github.com/Dan-Levi), reach out on [reddit](https://www.reddit.com/user/Danbannan), [Facebook](https://www.facebook.com/danlevi.no/), [Twitter](https://twitter.com/DanLeviH) or even by [e-mail](danbannan@gmail.com).
+You can [create a thread](https://umod.org/community/wordpress-bridge/thread/create), submit an issue on [Github](https://github.com/Dan-Levi), reach out on [reddit](https://www.reddit.com/user/Danbannan), [Facebook](https://www.facebook.com/danlevi.no/), [Twitter](https://twitter.com/DanLeviH) or even by [e-mail](danbannan@gmail.com).
 
 ## Changelog
 + `1.0.1` - Performance update for bandwith and memory usage [Commit on GitHub](https://github.com/Dan-Levi/wpbridge-rust/commit/377b3347d0c9a9e853d30f632ce5019466ea95aa)  and [reddit for details](https://www.reddit.com/r/playrustadmin/comments/q3tw6h/wordpress_integration_plugin_update_101/)
