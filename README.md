@@ -11,6 +11,7 @@ WordPress Bridge integrates [WordPress](https://wordpress.org/) with [uMod/Oxide
 + Tested up to **200 players** online simultaneously.
 + Player chat commands.
 
+
 ## Installation
 
 + Click the Download Button on the [plugin page](https://umod.org/plugins/wordpress-bridge#content)
@@ -47,10 +48,11 @@ WordPress Bridge integrates [WordPress](https://wordpress.org/) with [uMod/Oxide
 + `/wip.isreserved` Check if is reserved or sharing stats.
 + `/wip.reserve` Toggles share/reserve statistics. **BY DEFAULT: share**
 
-## Coming in next update
-+ Kill feed implementation: `Displays a kill feed on your WordPress site showing who killed who.`
 
+## Upcoming features
 
++ **Loot statistics:** The different resources and containers that players loot.
++ **Kill feed implementation:** Displays a kill feed on your WordPress site showing who killed who.
 
 ## FAQ
 + **Does this plugin have any plugin dependencies?**
@@ -61,6 +63,7 @@ WordPress Bridge integrates [WordPress](https://wordpress.org/) with [uMod/Oxide
   By default, remote access to database server is disabled for security reasons on most hosts.
 
 **The upside about this** is that WordPress Bridge doesn't care about the database technology, and shouldn't either. As long as the REST API Endpoint responds correctly **the data that is sent could basically be stored in any kind of database and format.**
+
 
 ## Feedback
 You can [create a thread](https://umod.org/community/wordpress-bridge/thread/create), submit an issue on [Github](https://github.com/Dan-Levi), reach out on [reddit](https://www.reddit.com/user/Danbannan), [Facebook](https://www.facebook.com/danlevi.no/), [Twitter](https://twitter.com/DanLeviH) or even by [e-mail](danbannan@gmail.com).
