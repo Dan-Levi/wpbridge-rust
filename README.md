@@ -1,9 +1,9 @@
 
-Visit [WordPress Integration Plugin's official website](https://wpbridge.danlevi.no/)
+Visit [WordPress Bridge's official website](https://wpbridge.danlevi.no/)
 
 ## Synopsis
 
-WordPress Integration Plugin integrates [WordPress](https://wordpress.org/) with [uMod/Oxide](https://umod.org/games/rust) enabled Rust servers. This makes it possible for Rust admins to show updated player statistics and server information on their WordPress site.
+WordPress Bridge integrates [WordPress](https://wordpress.org/) with [uMod/Oxide](https://umod.org/games/rust) enabled Rust servers. This makes it possible for Rust admins to show updated player statistics and server information on their WordPress site.
 
 ## Features
 
@@ -60,7 +60,7 @@ WordPress Integration Plugin integrates [WordPress](https://wordpress.org/) with
   + Some hosts accepts external scripts to query database directly, and some hosts don't.
   By default, remote access to database server is disabled for security reasons on most hosts.
 
-**The upside about this** is that WordPress Integration Plugin doesn't care about the database technology, and shouldn't either. As long as the REST API Endpoint responds correctly **the data that is sent could basically be stored in any kind of database and format.**
+**The upside about this** is that WordPress Bridge doesn't care about the database technology, and shouldn't either. As long as the REST API Endpoint responds correctly **the data that is sent could basically be stored in any kind of database and format.**
 
 ## Feedback
 You can [create a thread](https://umod.org/community/wordpress-bridge/thread/create), submit an issue on [Github](https://github.com/Dan-Levi), reach out on [reddit](https://www.reddit.com/user/Danbannan), [Facebook](https://www.facebook.com/danlevi.no/), [Twitter](https://twitter.com/DanLeviH) or even by [e-mail](danbannan@gmail.com).
@@ -70,5 +70,5 @@ You can [create a thread](https://umod.org/community/wordpress-bridge/thread/cre
 
 ---
 
-### **Thanks** for your interest in WordPress Integration Plugin! <3
-Visited [WordPress Integration Plugin for Rust's official website](https://wpbridge.danlevi.no/) yet?
+### **Thanks** for your interest in WordPress Bridge! <3
+Visited [WordPress Bridge for Rust's official website](https://wpbridge.danlevi.no/) yet?
