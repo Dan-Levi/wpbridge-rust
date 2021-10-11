@@ -1,9 +1,9 @@
 
-Visit [WordPress Bridge's official website](https://wpbridge.danlevi.no/)
 
-## Synopsis
+# Synopsis
 
 WordPress Bridge integrates [WordPress](https://wordpress.org/) with [uMod/Oxide](https://umod.org/games/rust) enabled Rust servers. This makes it possible for Rust admins to show updated player statistics and server information on their WordPress site.
+
 
 ## Features
 
@@ -11,6 +11,11 @@ WordPress Bridge integrates [WordPress](https://wordpress.org/) with [uMod/Oxide
 + Tested up to **200 players** online simultaneously.
 + Player chat commands.
 
+---
+
+![WPBridge Demo](https://i.imgur.com/aXoVuFq.jpg)
+
+# Visit [WordPress Bridge's official website](https://wpbridge.danlevi.no/)
 
 ## Installation
 
@@ -23,6 +28,10 @@ WordPress Bridge integrates [WordPress](https://wordpress.org/) with [uMod/Oxide
 + Once your Rust server has loaded the plugin, it generates `YOUR_RUST_SERVER\oxide\config\WPBridge.json` config file.
 + Open `WPBridge.json` in your preferred text editor and replace the dummy variables.
 + Reload the plugin using `o.reload WPBridge`.
+
+### Once you are up and running, the rest is done in [the WordPress plugin](https://wordpress.org/plugins/wpbridge-for-rust/).
+
+---
 
 ### Variables
 + `External_IP`: The external IP for your Rust server.
