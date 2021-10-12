@@ -8,7 +8,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace Oxide.Plugins
 {
-    [Info("WordPress Integration Plugin", "Murky", "1.0.1")]
+    [Info("WordPress Integration Plugin", "Murky", "1.0.11")]
     [Description("WordPress Integration Plugin does exactly what it says, it integrates Rust servers with Wordpress, making it possible to show always up to date player and server statistics on your Wordpress site.")]
     internal class WPBridge : RustPlugin
     {
@@ -401,14 +401,17 @@ namespace Oxide.Plugins
         {
             if(_player != null && info != null)
             {
-                var infoMeleedPlayer = info.HitEntity.ToPlayer();
-                if(infoMeleedPlayer != null && !infoMeleedPlayer.IsNpc)
+                if(info.HitEntity != null && info.HitEntity.ToPlayer() != null)
                 {
-                    var meleedplayer = FindExistingPlayer(infoMeleedPlayer.UserIDString);
-                    if(meleedplayer != null)
+                    var infoMeleedPlayer = info.HitEntity.ToPlayer();
+                    if(infoMeleedPlayer != null && !infoMeleedPlayer.IsNpc)
                     {
-                        var player = FindExistingPlayer(_player.UserIDString);
-                        player.MeleeAttacks++;
+                        var meleedplayer = FindExistingPlayer(infoMeleedPlayer.UserIDString);
+                        if(meleedplayer != null)
+                        {
+                            var player = FindExistingPlayer(_player.UserIDString);
+                            player.MeleeAttacks++;
+                        }
                     }
                 }
             }
