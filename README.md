@@ -79,6 +79,7 @@ You can [create a thread](https://umod.org/community/wordpress-bridge/thread/cre
 
 ## Changelog
 + `1.0.1` - Performance update for bandwith and memory usage [Commit on GitHub](https://github.com/Dan-Levi/wpbridge-rust/commit/377b3347d0c9a9e853d30f632ce5019466ea95aa)  and [reddit for details](https://www.reddit.com/r/playrustadmin/comments/q3tw6h/wordpress_integration_plugin_update_101/)
++ `1.0.121` - Plugin unloading and more readable console. [Commit on GitHub](https://github.com/Dan-Levi/wpbridge-rust/commit/fab5e4f6d82e158a58aa8a98dac3473388f505a1)
 
 ---
 
