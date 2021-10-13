@@ -78,7 +78,7 @@ WordPress Bridge integrates [WordPress](https://wordpress.org/) with [uMod/Oxide
 You can [create a thread](https://umod.org/community/wordpress-bridge/thread/create), submit an issue on [Github](https://github.com/Dan-Levi), reach out on [reddit](https://www.reddit.com/user/Danbannan), [Facebook](https://www.facebook.com/danlevi.no/), [Twitter](https://twitter.com/DanLeviH) or even by [e-mail](danbannan@gmail.com).
 
 ## Changelog
-+ `1.0.122` - Error logging [Commit on GitHub](https://github.com/Dan-Levi/wpbridge-rust/commit/c494c688958307989102ae39ac45a9ae5a91e3f0)
++ `1.0.122` - Error logging [Commit on GitHub](https://github.com/Dan-Levi/wpbridge-rust/commit/c494c688958307989102ae39ac45a9ae5a91e3f0) and [reddit for details](https://www.reddit.com/r/playrustadmin/comments/q717fz/plugin_update_wordpress_bridge/)
 + `1.0.121` - Plugin unloading and more readable console. [Commit on GitHub](https://github.com/Dan-Levi/wpbridge-rust/commit/fab5e4f6d82e158a58aa8a98dac3473388f505a1)
 + `1.0.111` - Resolved a bug that cleared the player statistics on plugin update [Commit on GitHub](https://github.com/Dan-Levi/wpbridge-for-rust/commit/64ea68e2d75c115e7f36654bcd25f49e63754b90)  and [reddit for details](https://www.reddit.com/r/playrustadmin/comments/q58xas/plugin_update_wpbridge_v10111/)
 + `1.0.1` - Performance update for bandwith and memory usage [Commit on GitHub](https://github.com/Dan-Levi/wpbridge-rust/commit/377b3347d0c9a9e853d30f632ce5019466ea95aa)  and [reddit for details](https://www.reddit.com/r/playrustadmin/comments/q3tw6h/wordpress_integration_plugin_update_101/)
