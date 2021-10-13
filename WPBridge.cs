@@ -8,7 +8,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace Oxide.Plugins
 {
-    [Info("WordPress Integration Plugin", "Murky", "1.0.12")]
+    [Info("WordPress Integration Plugin", "Murky", "1.0.122")]
     [Description("WordPress Integration Plugin does exactly what it says, it integrates Rust servers with Wordpress, making it possible to show always up to date player and server statistics on your Wordpress site.")]
     internal class WPBridge : RustPlugin
     {
@@ -56,7 +56,9 @@ namespace Oxide.Plugins
             }
             catch
             {
+                LogToFile("ErrorLog", $"[{DateTime.Now}] [LoadConfig] Configuration file contains an error. Using default configuration values.", this);
                 PrintError("ERROR: " + "Your configuration file contains an error. Using default configuration values.");
+
                 LoadDefaultConfig();
             }
         }
@@ -85,6 +87,7 @@ namespace Oxide.Plugins
             {
                 if(!CreateReservedStatsGroup())
                 {
+                    LogToFile("ErrorLog", $"[{DateTime.Now}] [WPBridgeInit] -> Couldn't create permission group \"{ReservedPlayerGroupName}\". Unloading plugin.", this);
                     PrintError($"Couldn't create permission group \"{ReservedPlayerGroupName}\". Unloading plugin.");
                     Interface.Oxide.UnloadPlugin("WPBridge");
                     return;
@@ -93,6 +96,7 @@ namespace Oxide.Plugins
             var configCheck = CheckConfig();
             if (!configCheck.Key)
             {
+                LogToFile("ErrorLog", $"[{DateTime.Now}] [WPBridgeInit] -> {configCheck.Value}. Unloading plugin.", this);
                 PrintError(configCheck.Value);
                 Interface.Oxide.UnloadPlugin("WPBridge");
                 return;
@@ -161,8 +165,9 @@ namespace Oxide.Plugins
                 }
                 catch (Exception ex)
                 {
-                    PrintError($"[ValidateSecret] Error while deserializing wpResponse");
-                    
+                    PrintDebug($"[ValidateSecret] WordPress response error. See oxide/logs/WPBridge for more.");
+                    LogToFile("ErrorLog",$"[{DateTime.Now}] [ValidateSecret] -> {responseString} ",this);
+
                 }
                 if(wpResponse == null)
                 {
@@ -173,6 +178,7 @@ namespace Oxide.Plugins
                 if (wpResponse.data.status != 200)
                 {
                     PrintWarning($"[{wpResponse.data.status}] -> {wpResponse.message}");
+                    LogToFile("ErrorLog", $"[{DateTime.Now}] [SendPlayerData] -> [{wpResponse.data.status}] {wpResponse.message}", this);
                     return;
                 }
                 PrintDebug($"[200] => Secret validated. Server responded: {wpResponse.message}");
@@ -198,16 +204,18 @@ namespace Oxide.Plugins
                     }
                     catch (Exception ex)
                     {
-                        PrintError($"[SendPlayerData] Error while deserializing wpResponse");
+                        PrintDebug($"[SendPlayerData] WordPress response error. See oxide/logs/WPBridge for more.");
+                        LogToFile("ErrorLog", $"[{DateTime.Now}] [SendPlayerData] -> {responseString} ", this);
+
                     }
                     if (wpResponse == null)
                     {
-                        PrintError($"Server responded invalid data");
                         return;
                     }
                     if (wpResponse.data.status != 200)
                     {
                         PrintWarning($"[{wpResponse.data.status}] -> {wpResponse.message}");
+                        LogToFile("ErrorLog", $"[{DateTime.Now}] [SendPlayerData] -> [{wpResponse.data.status}] {wpResponse.message}", this);
                         return;
                     }
                     stopWatch.Stop();
@@ -239,17 +247,17 @@ namespace Oxide.Plugins
                 }
                 catch (Exception ex)
                 {
-                    PrintError($"[SendPlayerData] Error while deserializing wpResponse");
+                    PrintDebug($"[SendPlayerData] WordPress response error. See oxide/logs/WPBridge for more.");
+                    LogToFile("ErrorLog", $"[{DateTime.Now}] [SendPlayerData] -> {responseString}", this);
                 }
                 if (wpResponse == null)
                 {
-                    PrintError($"Server responded invalid data");
                     return;
                 }
                 if (wpResponse.data.status != 200)
                 {
                     PrintWarning($"[{wpResponse.data.status}] -> {wpResponse.message}");
-                    //Interface.Oxide.UnloadPlugin("WPBridge");
+                    LogToFile("ErrorLog", $"[{DateTime.Now}] [SendPlayerData] -> [{wpResponse.data.status}] {wpResponse.message}", this);
                     return;
                 }
                 stopWatch.Stop();
