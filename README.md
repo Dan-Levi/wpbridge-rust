@@ -86,4 +86,4 @@ You can [create a thread](https://umod.org/community/wordpress-bridge/thread/cre
 ---
 
 ### **Thanks** for your interest in WordPress Bridge! <3
-Visited [WordPress Bridge for Rust's official website](https://wpbridge.danlevi.no/) yet?
+Visited [WordPress Bridge's official website](https://wpbridge.danlevi.no/) yet?
