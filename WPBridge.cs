@@ -153,25 +153,26 @@ namespace Oxide.Plugins
         {
             var serializedRequest = JsonConvert.SerializeObject(new WPRequest(PlayersData));
             webrequest.Enqueue($"{_config.Wordpress_Site_URL}index.php/wp-json/wpbridge/secret", serializedRequest, (responseCode, responseString) => {
-                var wpResponse = JsonConvert.DeserializeObject<WPResponse>(responseString, new JsonSerializerSettings
+                WPResponse wpResponse = null;
+                try
                 {
-                    Error = delegate (object sender, ErrorEventArgs args)
-                    {
-                        PrintError($"[500] -> Failed to deserialize Wordpress response: {responseString}");
-                        //Interface.Oxide.UnloadPlugin("WPBridge");
-                        return;
-                    }
-                });
+                    wpResponse = JsonConvert.DeserializeObject<WPResponse>(responseString);
+
+                }
+                catch (Exception ex)
+                {
+                    PrintError($"[ValidateSecret] Error while deserializing wpResponse");
+                    
+                }
                 if(wpResponse == null)
                 {
-                    PrintError($"Server responded invalid data... Trying again in 5 seconds");
+                    PrintError($"[ValidateSecret] Trying again in 5 seconds");
                     timer.Once(5f, ValidateSecret);
                     return;
                 }
                 if (wpResponse.data.status != 200)
                 {
                     PrintWarning($"[{wpResponse.data.status}] -> {wpResponse.message}");
-                    //Interface.Oxide.UnloadPlugin("WPBridge");
                     return;
                 }
                 PrintDebug($"[200] => Secret validated. Server responded: {wpResponse.message}");
@@ -190,24 +191,23 @@ namespace Oxide.Plugins
                 PrintDebug($"No players and no leaves to report. Pinging WordPress only for Server statistics");
                 stopWatch.Start();
                 webrequest.Enqueue($"{_config.Wordpress_Site_URL}index.php/wp-json/wpbridge/secret", serializedRequest, (responseCode, responseString) => {
-                    var wpResponse = JsonConvert.DeserializeObject<WPResponse>(responseString, new JsonSerializerSettings
+                    WPResponse wpResponse = null;
+                    try
                     {
-                        Error = delegate (object sender, ErrorEventArgs args)
-                        {
-                            PrintError($"[500] -> Failed to deserialize Wordpress response: {responseString}");
-                            //Interface.Oxide.UnloadPlugin("WPBridge");
-                            return;
-                        }
-                    });
+                        wpResponse = JsonConvert.DeserializeObject<WPResponse>(responseString);
+                    }
+                    catch (Exception ex)
+                    {
+                        PrintError($"[SendPlayerData] Error while deserializing wpResponse");
+                    }
                     if (wpResponse == null)
                     {
-                        PrintError($"Server responded invalid data...");
+                        PrintError($"Server responded invalid data");
                         return;
                     }
                     if (wpResponse.data.status != 200)
                     {
                         PrintWarning($"[{wpResponse.data.status}] -> {wpResponse.message}");
-                        //Interface.Oxide.UnloadPlugin("WPBridge");
                         return;
                     }
                     stopWatch.Stop();
@@ -231,19 +231,19 @@ namespace Oxide.Plugins
                     PlayersLeftSteamIds.Clear();
                 }
 
-
-                var wpResponse = JsonConvert.DeserializeObject<WPResponse>(responseString, new JsonSerializerSettings
+                WPResponse wpResponse = null;
+                try
                 {
-                    Error = delegate (object sender, ErrorEventArgs args)
-                    {
-                        PrintError($"[500] -> Failed to deserialize Wordpress response: {responseString}");
-                        //Interface.Oxide.UnloadPlugin("WPBridge");
-                        return;
-                    }
-                });
+                    wpResponse = JsonConvert.DeserializeObject<WPResponse>(responseString);
+
+                }
+                catch (Exception ex)
+                {
+                    PrintError($"[SendPlayerData] Error while deserializing wpResponse");
+                }
                 if (wpResponse == null)
                 {
-                    PrintError($"Server responded invalid data...");
+                    PrintError($"Server responded invalid data");
                     return;
                 }
                 if (wpResponse.data.status != 200)
