@@ -8,7 +8,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace Oxide.Plugins
 {
-    [Info("WordPress Integration Plugin", "Murky", "1.0.11")]
+    [Info("WordPress Integration Plugin", "Murky", "1.0.12")]
     [Description("WordPress Integration Plugin does exactly what it says, it integrates Rust servers with Wordpress, making it possible to show always up to date player and server statistics on your Wordpress site.")]
     internal class WPBridge : RustPlugin
     {
@@ -158,7 +158,7 @@ namespace Oxide.Plugins
                     Error = delegate (object sender, ErrorEventArgs args)
                     {
                         PrintError($"[500] -> Failed to deserialize Wordpress response: {responseString}");
-                        Interface.Oxide.UnloadPlugin("WPBridge");
+                        //Interface.Oxide.UnloadPlugin("WPBridge");
                         return;
                     }
                 });
@@ -171,7 +171,7 @@ namespace Oxide.Plugins
                 if (wpResponse.data.status != 200)
                 {
                     PrintWarning($"[{wpResponse.data.status}] -> {wpResponse.message}");
-                    Interface.Oxide.UnloadPlugin("WPBridge");
+                    //Interface.Oxide.UnloadPlugin("WPBridge");
                     return;
                 }
                 PrintDebug($"[200] => Secret validated. Server responded: {wpResponse.message}");
@@ -195,7 +195,7 @@ namespace Oxide.Plugins
                         Error = delegate (object sender, ErrorEventArgs args)
                         {
                             PrintError($"[500] -> Failed to deserialize Wordpress response: {responseString}");
-                            Interface.Oxide.UnloadPlugin("WPBridge");
+                            //Interface.Oxide.UnloadPlugin("WPBridge");
                             return;
                         }
                     });
@@ -207,7 +207,7 @@ namespace Oxide.Plugins
                     if (wpResponse.data.status != 200)
                     {
                         PrintWarning($"[{wpResponse.data.status}] -> {wpResponse.message}");
-                        Interface.Oxide.UnloadPlugin("WPBridge");
+                        //Interface.Oxide.UnloadPlugin("WPBridge");
                         return;
                     }
                     stopWatch.Stop();
@@ -237,7 +237,7 @@ namespace Oxide.Plugins
                     Error = delegate (object sender, ErrorEventArgs args)
                     {
                         PrintError($"[500] -> Failed to deserialize Wordpress response: {responseString}");
-                        Interface.Oxide.UnloadPlugin("WPBridge");
+                        //Interface.Oxide.UnloadPlugin("WPBridge");
                         return;
                     }
                 });
@@ -249,7 +249,7 @@ namespace Oxide.Plugins
                 if (wpResponse.data.status != 200)
                 {
                     PrintWarning($"[{wpResponse.data.status}] -> {wpResponse.message}");
-                    Interface.Oxide.UnloadPlugin("WPBridge");
+                    //Interface.Oxide.UnloadPlugin("WPBridge");
                     return;
                 }
                 stopWatch.Stop();
