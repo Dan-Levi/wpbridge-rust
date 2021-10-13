@@ -5,11 +5,12 @@ using Oxide.Core;
 using Oxide.Core.Libraries.Covalence;
 using Rust;
 using Newtonsoft.Json.Serialization;
+using System.Linq;
 
 namespace Oxide.Plugins
 {
-    [Info("WordPress Integration Plugin", "Murky", "1.0.123")]
-    [Description("WordPress Integration Plugin does exactly what it says, it integrates Rust servers with Wordpress, making it possible to show always up to date player and server statistics on your Wordpress site.")]
+    [Info("WordPress Bridge", "Murky", "1.1.124")]
+    [Description("WordPress Bridge integrates Rust servers with Wordpress, making it possible to embed player and server statistics on your Wordpress site with shortcodes.")]
     internal class WPBridge : RustPlugin
     {
 
@@ -232,7 +233,9 @@ namespace Oxide.Plugins
             stopWatch.Start();
             webrequest.Enqueue($"{_config.Wordpress_Site_URL}index.php/wp-json/wpbridge/player-stats", serializedRequest, (responseCode, responseString) =>
             {
-
+                PrintDebug("\n\n");
+                PrintDebug(responseString);
+                PrintDebug("\n\n");
                 if (PlayersLeftSteamIds.Count > 0)
                 {
                     PlayersData.RemoveAll(p => { return PlayersLeftSteamIds.Contains(p.SteamId); });
@@ -359,6 +362,7 @@ namespace Oxide.Plugins
             if(attacker.IsNpc && victimPlayer != null)
             {
                 victimPlayer.KilledByNPC++;
+                victimPlayer.Deaths++;
                 PrintDebug($"Player: {victimPlayer.DisplayName} have been killed by NPC's {victimPlayer.KilledByNPC} times.");
                 return;
             }
@@ -661,18 +665,74 @@ namespace Oxide.Plugins
 
         }
 
-        void OnCollectiblePickup(Item item, BasePlayer _player)
+        void OnDispenserGather(ResourceDispenser dispenser, BaseEntity entity, Item _item)
         {
-            PrintDebug(item.info.name);
-            var player = FindExistingPlayer(_player.UserIDString);
-            if (player != null)
+            if (!entity.ToPlayer()) return;
+            var player = FindExistingPlayer(entity.ToPlayer().UserIDString);
+            if (player == null) return;
+            if (_item == null || _item.info == null || _item.info.name == null) return;
+            if (_item.info.name.EndsWith(".item"))
             {
-                player.CollectiblesPickedUp++;
-                PrintDebug($"Player: {player.DisplayName} have picked up collectibles {player.CollectiblesPickedUp} times.");
+                WPBridgeOnLoot(_item, entity.ToPlayer());
             }
         }
 
+        private void OnDispenserBonus(ResourceDispenser dispenser, BaseEntity _entity, Item _item)
+        {
+            if (!_entity.ToPlayer()) return;
+            var player = FindExistingPlayer(_entity.ToPlayer().UserIDString);
+            if (player == null) return;
+            if (_item == null || _item.info == null || _item.info.name == null) return;
+            if (_item.info.name.EndsWith(".item"))
+            {
+                WPBridgeOnLoot(_item,_entity.ToPlayer());
+            }
+        }
 
+        void WPBridgeOnLoot(Item _item, BasePlayer _player)
+        {
+            if (_item == null || _item.info == null || _player == null) return;
+            var player = FindExistingPlayer(_player.UserIDString);
+            if (player == null) return;
+            if (_item.info.name.EndsWith(".item"))
+            {
+                int itemNameLength = _item.info.name.Length;
+                var itemName = _item.info.name.Replace(".item", "");
+                if (itemName.Length < itemNameLength)
+                {
+                    var itemAmount = _item.amount;
+                    PrintDebug($" Player {player.DisplayName} looted {itemAmount} {itemName} : [{_item.info.name}].");
+                    if (player.LootedItems.Count > 0)
+                    {
+                        var lootItem = player.LootedItems.Where(x => x.Name == itemName).FirstOrDefault();
+                        if (lootItem != null)
+                        {
+                            lootItem.Amount += itemAmount;
+                        }
+                        else
+                        {
+                            player.LootedItems.Add(new LootItem(itemName, itemAmount));
+                        }
+                    }
+                    else
+                    {
+                        player.LootedItems.Add(new LootItem(itemName, itemAmount));
+                    }
+                }
+            }
+        }
+
+        void OnCollectiblePickup(Item _item, BasePlayer _player)
+        {
+            if (_item == null || _item.info == null || _player == null) return;
+            var player = FindExistingPlayer(_player.UserIDString);
+            if (player == null) return;
+            if(_item.info.name.EndsWith(".item"))
+            {
+                WPBridgeOnLoot(_item, _player);
+            }
+            player.CollectiblesPickedUp++;
+        }
 
         void OnGrowableGather(GrowableEntity plant, Item item, BasePlayer _player)
         {
@@ -759,7 +819,6 @@ namespace Oxide.Plugins
 
         bool ReservedStatsGroupExists()
         {
-            PrintDebug($"Permission group \"{ReservedPlayerGroupName}\" exists.");
             return permission.GroupExists(ReservedPlayerGroupName);
         }
 
@@ -770,6 +829,26 @@ namespace Oxide.Plugins
         }
 
         #endregion
+
+        #region LOOT DATA
+        
+        
+
+        public class LootItem
+        {
+            public string Name;
+            public int Amount;
+            
+            public LootItem(string name, int amount)
+            {
+                Name = name;
+                Amount = amount;
+            }
+
+        }
+
+        #endregion
+
 
         #region PLAYER DATA
 
@@ -791,12 +870,14 @@ namespace Oxide.Plugins
             return PlayersData.Find(p => p.SteamId.ToString() == steamId);
         }
 
+
         public class PlayerStats
         {
             public PlayerStats(string steamId, string displayName)
             {
                 SteamId = steamId;
                 DisplayName = displayName;
+                LootedItems = new List<LootItem>();
             }
 
             public string SteamId { get; internal set; }
@@ -833,6 +914,8 @@ namespace Oxide.Plugins
             public int LootHackable { get; internal set; }
             public int LootContainerUnderWater { get; internal set; }
 
+            public List<LootItem> LootedItems;
+
             public void Clear()
             {
                 Joins = 0;
@@ -866,41 +949,10 @@ namespace Oxide.Plugins
                 LootBradHeli = 0;
                 LootHackable = 0;
                 LootContainerUnderWater = 0;
+                LootedItems = new List<LootItem>();
             }
 
-            public override string ToString()
-            {
-                return 
-                    $"SteamId: {SteamId}, " +
-                    $"DisplayName: {DisplayName}, " +
-                    $"Joins: {Joins}, " +
-                    $"Leaves: {Leaves}, " +
-                    $"Kills: {Kills}, " +
-                    $"Deaths: {Deaths}, " +
-                    $"Suicides: {Suicides}, " +
-                    $"Shots: {Shots}, " +
-                    $"Headshots: {Headshots}, " +
-                    $"Wounded: {Wounded}, " +
-                    $"Recoveries: {Recoveries}, " +
-                    $"CraftedItems: {CraftedItems}, " +
-                    $"RepairedItems: {RepairedItems}, " +
-                    $"Explosives thrown: {ExplosivesThrown}, " +
-                    $"VoiceBytes: {VoiceBytes}, " +
-                    $"HammerHits: {HammerHits}, " +
-                    $"Weapon reloads: {Reloads}, " +
-                    $"Collectibles picked up: {CollectiblesPickedUp}, " +
-                    $"Growables gathered: {GrowablesGathered}, " +
-                    $"Chats sent: {Chats}, " +
-                    $"NPC Kills: {NPCKills}, " +
-                    $"Melee attacks: {MeleeAttacks}, " +
-                    $"Map markers added: {MapMarkers}, " +
-                    $"Respawns: {Respawns}, " +
-                    $"Rockets launched: {RocketsLaunched}, " +
-                    $"Antihack violations triggered: {AntiHackViolations}, " +
-                    $"Spoken to NPC's: {NPCSpeaks}, " +
-                    $"Researched items: {ResearchedItems}, " +
-                    $"Killed by NPC: {KilledByNPC}";
-            }
+            
         }
 
         private void SaveActivePlayersData()
