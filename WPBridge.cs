@@ -8,7 +8,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace Oxide.Plugins
 {
-    [Info("WordPress Integration Plugin", "Murky", "1.0.122")]
+    [Info("WordPress Integration Plugin", "Murky", "1.0.123")]
     [Description("WordPress Integration Plugin does exactly what it says, it integrates Rust servers with Wordpress, making it possible to show always up to date player and server statistics on your Wordpress site.")]
     internal class WPBridge : RustPlugin
     {
@@ -344,7 +344,52 @@ namespace Oxide.Plugins
                 PlayersLeftSteamIds.Add(player.SteamId);
             }
         }
-        void OnPlayerDeath(BasePlayer _player, HitInfo info)
+
+        //Death, NPC Kills, Killed by NPC, Suicide
+        void OnPlayerDeath(BasePlayer victim, HitInfo hitInfo)
+        {
+            if (victim == null) return;
+            if (hitInfo == null) return;
+            if (hitInfo.Initiator == null) return;
+            
+            var attacker = hitInfo.Initiator as BasePlayer;
+            if (victim == null || attacker == null) return;
+            var victimPlayer = FindExistingPlayer(victim.UserIDString);
+
+            if(attacker.IsNpc && victimPlayer != null)
+            {
+                victimPlayer.KilledByNPC++;
+                PrintDebug($"Player: {victimPlayer.DisplayName} have been killed by NPC's {victimPlayer.KilledByNPC} times.");
+                return;
+            }
+
+            var attackingPlayer = FindExistingPlayer(attacker.UserIDString);
+            if (attackingPlayer == null) return;
+            
+            if(victim.IsNpc)
+            {
+                attackingPlayer.NPCKills++;
+                PrintDebug($"Player: {attackingPlayer.DisplayName} have killed {attackingPlayer.NPCKills} npc's.");
+                return;
+            }
+            
+            if (victimPlayer == null) return;
+
+            if(hitInfo.damageTypes.GetMajorityDamageType() == DamageType.Suicide)
+            {
+                victimPlayer.Suicides++;
+                PrintDebug($"Player: {victimPlayer.DisplayName} have suicided {victimPlayer.Suicides} times.");
+                return;
+            }
+
+            victimPlayer.Deaths++;
+            PrintDebug($"Player: {victimPlayer.DisplayName} have died {attackingPlayer.Deaths} times.");
+            attackingPlayer.Kills++;
+            PrintDebug($"Player: {victimPlayer.DisplayName} have killed {attackingPlayer.Kills} times.");
+
+        }
+
+        /*void OnPlayerDeath(BasePlayer _player, HitInfo info)
         {
             if(_player.IsNpc && info != null)
             {
@@ -395,7 +440,14 @@ namespace Oxide.Plugins
                     }
                 }
             }
-        }
+        }*/
+
+
+
+
+
+
+
         void OnPlayerVoice(BasePlayer _player, byte[] data)
         {
             var player = FindExistingPlayer(_player.UserIDString);
@@ -575,8 +627,43 @@ namespace Oxide.Plugins
         }
 
         // Resource
+        private void OnLootEntityEnd(BasePlayer _player, BaseEntity entity)
+        {
+            if (_player == null || !entity.IsValid()) return;
+
+            var player = FindExistingPlayer(_player.UserIDString);
+            if (player == null) return;
+
+            var loot = entity.GetType().Name.ToLower();
+            if (loot == null || loot == "") return;
+            switch (loot)   
+            {
+                case "lootcontainer":
+                    player.LootContainer++;
+                    PrintDebug($"[OnLootEntity] Player {player.DisplayName} looted crate.");
+                    break;
+                case "freeablelootcontainer":
+                    player.LootContainerUnderWater++;
+                    PrintDebug($"[OnLootEntity] Player {player.DisplayName} looted Underwater crate.");
+                    break;
+                case "lockedbyentcrate":
+                    player.LootBradHeli++;
+                    PrintDebug($"[OnLootEntity] Player {player.DisplayName} looted Brad/Heli crate.");
+                    break;
+                case "hackablelockedcrate":
+                    player.LootHackable++;
+                    PrintDebug($"[OnLootEntity] Player {player.DisplayName} looted Hackable crate.");
+                    break;
+                default:
+                    PrintDebug($"[OnLootEntity] Player looted \"{loot}\" which currently is not tracked.");
+                    break;
+            }
+
+        }
+
         void OnCollectiblePickup(Item item, BasePlayer _player)
         {
+            PrintDebug(item.info.name);
             var player = FindExistingPlayer(_player.UserIDString);
             if (player != null)
             {
@@ -584,6 +671,9 @@ namespace Oxide.Plugins
                 PrintDebug($"Player: {player.DisplayName} have picked up collectibles {player.CollectiblesPickedUp} times.");
             }
         }
+
+
+
         void OnGrowableGather(GrowableEntity plant, Item item, BasePlayer _player)
         {
             var player = FindExistingPlayer(_player.UserIDString);
@@ -737,6 +827,11 @@ namespace Oxide.Plugins
             public int AntiHackViolations { get; internal set; }
             public int NPCSpeaks { get; internal set; }
             public int ResearchedItems { get; internal set; }
+            public int KilledByNPC { get; internal set; }
+            public int LootContainer { get; internal set; }
+            public int LootBradHeli { get; internal set; }
+            public int LootHackable { get; internal set; }
+            public int LootContainerUnderWater { get; internal set; }
 
             public void Clear()
             {
@@ -766,6 +861,11 @@ namespace Oxide.Plugins
                 AntiHackViolations = 0;
                 NPCSpeaks = 0;
                 ResearchedItems = 0;
+                KilledByNPC = 0;
+                LootContainer = 0;
+                LootBradHeli = 0;
+                LootHackable = 0;
+                LootContainerUnderWater = 0;
             }
 
             public override string ToString()
@@ -798,7 +898,8 @@ namespace Oxide.Plugins
                     $"Rockets launched: {RocketsLaunched}, " +
                     $"Antihack violations triggered: {AntiHackViolations}, " +
                     $"Spoken to NPC's: {NPCSpeaks}, " +
-                    $"Researched items: {ResearchedItems}";
+                    $"Researched items: {ResearchedItems}, " +
+                    $"Killed by NPC: {KilledByNPC}";
             }
         }
 
