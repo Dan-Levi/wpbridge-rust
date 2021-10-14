@@ -233,9 +233,6 @@ namespace Oxide.Plugins
             stopWatch.Start();
             webrequest.Enqueue($"{_config.Wordpress_Site_URL}index.php/wp-json/wpbridge/player-stats", serializedRequest, (responseCode, responseString) =>
             {
-                PrintDebug("\n\n");
-                PrintDebug(responseString);
-                PrintDebug("\n\n");
                 if (PlayersLeftSteamIds.Count > 0)
                 {
                     PlayersData.RemoveAll(p => { return PlayersLeftSteamIds.Contains(p.SteamId); });
@@ -295,7 +292,7 @@ namespace Oxide.Plugins
         }
 
         // Player
-        void OnUserChat(IPlayer _player)
+        object OnUserChat(IPlayer _player)
         {
             var existingPlayer = FindExistingPlayer(_player.Id);
             if (existingPlayer != null)
@@ -303,6 +300,7 @@ namespace Oxide.Plugins
                 existingPlayer.Chats++;
                 PrintDebug($"Player: {existingPlayer.DisplayName} have sent {existingPlayer.Chats} chat messages.");
             }
+            return null;
         }
         void OnPlayerRecovered(BasePlayer _player)
         {
@@ -313,7 +311,7 @@ namespace Oxide.Plugins
                 PrintDebug($"Player: {player.DisplayName} have been recovered {player.Recoveries} times.");
             }
         }
-        void OnPlayerWound(BasePlayer _player)
+        object OnPlayerWound(BasePlayer _player)
         {
             var player = FindExistingPlayer(_player.UserIDString);
             if (player != null)
@@ -321,6 +319,7 @@ namespace Oxide.Plugins
                 player.Wounded++;
                 PrintDebug($"Player: {player.DisplayName} have been wounded {player.Wounded} times.");
             }
+            return null;
         }
         void OnUserConnected(IPlayer _player)
         {
@@ -348,15 +347,23 @@ namespace Oxide.Plugins
             }
         }
 
-        //Death, NPC Kills, Killed by NPC, Suicide
-        void OnPlayerDeath(BasePlayer victim, HitInfo hitInfo)
+
+
+        object OnLootNetworkUpdate(PlayerLoot loot)
         {
-            if (victim == null) return;
-            if (hitInfo == null) return;
-            if (hitInfo.Initiator == null) return;
+            PrintDebug("OnLootNetworkUpdate works");
+            return null;
+        }
+
+        //Death, NPC Kills, Killed by NPC, Suicide
+        object OnPlayerDeath(BasePlayer victim, HitInfo hitInfo)
+        {
+            if (victim == null) return null;
+            if (hitInfo == null) return null; 
+            if (hitInfo.Initiator == null) return null;
             
             var attacker = hitInfo.Initiator as BasePlayer;
-            if (victim == null || attacker == null) return;
+            if (victim == null || attacker == null) return null;
             var victimPlayer = FindExistingPlayer(victim.UserIDString);
 
             if(attacker.IsNpc && victimPlayer != null)
@@ -364,33 +371,33 @@ namespace Oxide.Plugins
                 victimPlayer.KilledByNPC++;
                 victimPlayer.Deaths++;
                 PrintDebug($"Player: {victimPlayer.DisplayName} have been killed by NPC's {victimPlayer.KilledByNPC} times.");
-                return;
+                return null;
             }
 
             var attackingPlayer = FindExistingPlayer(attacker.UserIDString);
-            if (attackingPlayer == null) return;
+            if (attackingPlayer == null) return null;
             
             if(victim.IsNpc)
             {
                 attackingPlayer.NPCKills++;
                 PrintDebug($"Player: {attackingPlayer.DisplayName} have killed {attackingPlayer.NPCKills} npc's.");
-                return;
+                return null;
             }
             
-            if (victimPlayer == null) return;
+            if (victimPlayer == null) return null;
 
             if(hitInfo.damageTypes.GetMajorityDamageType() == DamageType.Suicide)
             {
                 victimPlayer.Suicides++;
                 PrintDebug($"Player: {victimPlayer.DisplayName} have suicided {victimPlayer.Suicides} times.");
-                return;
+                return null;
             }
 
             victimPlayer.Deaths++;
             PrintDebug($"Player: {victimPlayer.DisplayName} have died {attackingPlayer.Deaths} times.");
             attackingPlayer.Kills++;
             PrintDebug($"Player: {victimPlayer.DisplayName} have killed {attackingPlayer.Kills} times.");
-
+            return null;
         }
 
         /*void OnPlayerDeath(BasePlayer _player, HitInfo info)
@@ -447,12 +454,7 @@ namespace Oxide.Plugins
         }*/
 
 
-
-
-
-
-
-        void OnPlayerVoice(BasePlayer _player, byte[] data)
+        object OnPlayerVoice(BasePlayer _player, byte[] data)
         {
             var player = FindExistingPlayer(_player.UserIDString);
             if (player != null)
@@ -460,6 +462,7 @@ namespace Oxide.Plugins
                 player.VoiceBytes++;
                 PrintDebug($"Player: {player.DisplayName} have generated {player.VoiceBytes} VoiceBytes.");
             }
+            return null;
         }
         void OnMeleeAttack(BasePlayer _player, HitInfo info)
         {
@@ -541,15 +544,16 @@ namespace Oxide.Plugins
         }
 
         // Entity
-        void OnEntityTakeDamage(BaseCombatEntity entity, HitInfo info)
+        object OnEntityTakeDamage(BaseCombatEntity entity, HitInfo info)
         {
-            if (info?.InitiatorPlayer == null || !info.isHeadshot) return;
+            if (info?.InitiatorPlayer == null || !info.isHeadshot) return null;
             var player = FindExistingPlayer(info.InitiatorPlayer.UserIDString);
             if (player != null)
             {
                 player.Headshots++;
                 PrintDebug($"Player: {player.DisplayName} have {player.Headshots} number of headshots.");
             }
+            return null;
         }
 
         // Item
@@ -562,7 +566,7 @@ namespace Oxide.Plugins
                 PrintDebug($"Player: {player.DisplayName} have crafted items {player.CraftedItems} times.");
             }
         }
-        void OnItemRepair(BasePlayer _player, Item item)
+        object OnItemRepair(BasePlayer _player, Item item)
         {
             var player = FindExistingPlayer(_player.UserIDString);
             if (player != null)
@@ -570,6 +574,7 @@ namespace Oxide.Plugins
                 player.RepairedItems++;
                 PrintDebug($"Player: {player.DisplayName} have repaired items {player.RepairedItems} times.");
             }
+            return null;
         }
         void OnItemResearch(ResearchTable table, Item targetItem, BasePlayer _player)
         {
@@ -591,7 +596,7 @@ namespace Oxide.Plugins
                 PrintDebug($"Player: {player.DisplayName} have thrown explosives {player.ExplosivesThrown} times.");
             }
         }
-        void OnReloadWeapon(BasePlayer _player)
+        object OnReloadWeapon(BasePlayer _player)
         {
             var player = FindExistingPlayer(_player.UserIDString);
             if (player != null)
@@ -599,6 +604,7 @@ namespace Oxide.Plugins
                 player.Reloads++;
                 PrintDebug($"Player: {player.DisplayName} have reloaded a weapon {player.Reloads} times.");
             }
+            return null;
         }
         void OnWeaponFired(BaseProjectile projectile, BasePlayer _player)
         {
@@ -620,7 +626,7 @@ namespace Oxide.Plugins
         }
 
         // Structure
-        void OnHammerHit(BasePlayer _player)
+        object OnHammerHit(BasePlayer _player)
         {
             var player = FindExistingPlayer(_player.UserIDString);
             if (player != null)
@@ -628,11 +634,13 @@ namespace Oxide.Plugins
                 player.HammerHits++;
                 PrintDebug($"Player: {player.DisplayName} have used his hammer {player.HammerHits} times.");
             }
+            return null;
         }
 
         // Resource
         private void OnLootEntityEnd(BasePlayer _player, BaseEntity entity)
         {
+            
             if (_player == null || !entity.IsValid()) return;
 
             var player = FindExistingPlayer(_player.UserIDString);
@@ -665,28 +673,30 @@ namespace Oxide.Plugins
 
         }
 
-        void OnDispenserGather(ResourceDispenser dispenser, BaseEntity entity, Item _item)
+        object OnDispenserGather(ResourceDispenser dispenser, BaseEntity entity, Item _item)
         {
-            if (!entity.ToPlayer()) return;
+            if (!entity.ToPlayer()) return null;
             var player = FindExistingPlayer(entity.ToPlayer().UserIDString);
-            if (player == null) return;
-            if (_item == null || _item.info == null || _item.info.name == null) return;
+            if (player == null) return null;
+            if (_item == null || _item.info == null || _item.info.name == null) return null;
             if (_item.info.name.EndsWith(".item"))
             {
                 WPBridgeOnLoot(_item, entity.ToPlayer());
             }
+            return null;
         }
 
-        private void OnDispenserBonus(ResourceDispenser dispenser, BaseEntity _entity, Item _item)
+        object OnDispenserBonus(ResourceDispenser dispenser, BaseEntity _entity, Item _item)
         {
-            if (!_entity.ToPlayer()) return;
+            if (!_entity.ToPlayer()) return null;
             var player = FindExistingPlayer(_entity.ToPlayer().UserIDString);
-            if (player == null) return;
-            if (_item == null || _item.info == null || _item.info.name == null) return;
+            if (player == null) return null;
+            if (_item == null || _item.info == null || _item.info.name == null) return null;
             if (_item.info.name.EndsWith(".item"))
             {
                 WPBridgeOnLoot(_item,_entity.ToPlayer());
             }
+            return null;
         }
 
         void WPBridgeOnLoot(Item _item, BasePlayer _player)
@@ -722,16 +732,17 @@ namespace Oxide.Plugins
             }
         }
 
-        void OnCollectiblePickup(Item _item, BasePlayer _player)
+        object OnCollectiblePickup(Item _item, BasePlayer _player)
         {
-            if (_item == null || _item.info == null || _player == null) return;
+            if (_item == null || _item.info == null || _player == null) return null;
             var player = FindExistingPlayer(_player.UserIDString);
-            if (player == null) return;
+            if (player == null) return null;
             if(_item.info.name.EndsWith(".item"))
             {
                 WPBridgeOnLoot(_item, _player);
             }
             player.CollectiblesPickedUp++;
+            return null;
         }
 
         void OnGrowableGather(GrowableEntity plant, Item item, BasePlayer _player)
