@@ -22,6 +22,8 @@ WordPress Bridge integrates [WordPress](https://wordpress.org/) with [uMod/Oxide
 
 ## Configuration
 
+### Configuration steps
+
 + Install [WordPress plugin](https://wordpress.org/plugins/wpbridge-for-rust/), Instructions [here](https://github.com/Dan-Levi/wpbridge-wordpress).
 + Once your Rust server has loaded the plugin, it generates `YOUR_RUST_SERVER\oxide\config\WPBridge.json` config file.
 + Open `WPBridge.json` in your preferred text editor and replace the dummy variables.
