@@ -49,7 +49,9 @@ WordPress Bridge integrates [WordPress](https://wordpress.org/) with [uMod/Oxide
             "Print_Debug_To_Console": false
         }
 
-## Player chat commands
+## Commands
+
+### Chat commands
 
 + `/wip.help` See a list of commands.
 + `/wip.isreserved` Check if is reserved or sharing stats.
