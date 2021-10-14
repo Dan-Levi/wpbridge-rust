@@ -1,8 +1,4 @@
-
-
-# Synopsis
-
-WordPress Bridge integrates [WordPress](https://wordpress.org/) with [uMod/Oxide](https://umod.org/games/rust) enabled Rust servers. This makes it possible for Rust admins to show updated player statistics and server information on their WordPress site.
+### WordPress Bridge integrates [WordPress](https://wordpress.org/) with [uMod/Oxide](https://umod.org/games/rust) enabled Rust servers. This makes it possible for Rust admins to show updated player statistics and server information on their WordPress site.
 
 
 ## Features
