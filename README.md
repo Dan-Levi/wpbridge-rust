@@ -26,8 +26,7 @@ WordPress Bridge integrates [WordPress](https://wordpress.org/) with [uMod/Oxide
 + Once your Rust server has loaded the plugin, it generates `YOUR_RUST_SERVER\oxide\config\WPBridge.json` config file.
 + Open `WPBridge.json` in your preferred text editor and replace the dummy variables.
 + Reload the plugin using `o.reload WPBridge`.
-
-### Once you are up and running, the rest is done in [the WordPress plugin](https://wordpress.org/plugins/wpbridge-for-rust/).
++ The rest is done in [the WordPress plugin](https://wordpress.org/plugins/wpbridge-for-rust/).
 
 ---
 
@@ -39,7 +38,7 @@ WordPress Bridge integrates [WordPress](https://wordpress.org/) with [uMod/Oxide
 + `Print_Debug_To_Console`: Print debug information to Rust Console. `true`: Debug | `false` No debug.
 
 
-### Example:
+### Example
 
         {
             "External_IP": "98.765.43.21",
