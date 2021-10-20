@@ -87,6 +87,9 @@ You can [create a thread](https://umod.org/community/wordpress-bridge/thread/cre
 
 ## Changelog
 
+### `1.0.125` 
+Plugin now prints exceptions to log file
+
 ### `1.0.124` 
 Added loot for all items and resources [Commit on GitHub](https://github.com/Dan-Levi/wpbridge-rust/commit/7ab7da5b4d9fbe5f0af7b481cf267faf973231d1) &nbsp;[Documentation here](https://wpbridge.danlevi.no/shortcode-documentation/)
 
