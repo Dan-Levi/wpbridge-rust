@@ -860,7 +860,6 @@ namespace Oxide.Plugins
 
         #endregion
 
-
         #region PLAYER DATA
 
         private void RemovePlayer(string steamId)
