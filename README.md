@@ -50,6 +50,13 @@ WordPress Bridge integrates [WordPress](https://wordpress.org/) with [uMod/Oxide
             "Print_Debug_To_Console": false
         }
 
+## Video tutorials
+
+[![1. How to setup Wordpress with Elementor and WPBridge for Rust](https://i.imgur.com/2r38ZYY.png)](https://www.youtube.com/watch?v=iVYoRrPm1qo&list=PLQ6Ojd6qy2eME4l0zEA-UmvbxXTkJOsm7)
+
+
+[![2. How to configure WordPress Bridge in WordPress](https://i.imgur.com/6YYHAxo.png)](https://www.youtube.com/watch?v=LUpX6R1s7fY&list=PLQ6Ojd6qy2eME4l0zEA-UmvbxXTkJOsm7&index=2)
+
 ## Commands
 
 ### Chat commands
@@ -61,14 +68,15 @@ WordPress Bridge integrates [WordPress](https://wordpress.org/) with [uMod/Oxide
 
 ## Upcoming features
 
-+ **Loot statistics:** The different resources and containers that players loot.
-+ **Kill feed implementation:** Displays a kill feed on your WordPress site showing who killed who.
++ **More Shortcode customization:** The different resources and containers that players loot.
 
 ## FAQ
 + **Does this plugin have any plugin dependencies?**
+
   + No.
+
 + **Why not just communicate directly with database?**
-  
+
   + Some hosts accepts external scripts to query database directly, and some hosts don't.
   By default, remote access to database server is disabled for security reasons on most hosts.
 
