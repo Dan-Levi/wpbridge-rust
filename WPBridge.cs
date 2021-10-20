@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Oxide.Plugins
 {
-    [Info("WordPress Bridge", "Murky", "1.1.124")]
+    [Info("WordPress Bridge", "Murky", "1.1.125")]
     [Description("WordPress Bridge integrates Rust servers with Wordpress, making it possible to embed player and server statistics on your Wordpress site with shortcodes.")]
     internal class WPBridge : RustPlugin
     {
@@ -55,10 +55,11 @@ namespace Oxide.Plugins
                 _config = Config.ReadObject<Configuration>();
                 if (_config == null) throw new Exception();
             }
-            catch
+            catch(Exception ex)
             {
-                LogToFile("ErrorLog", $"[{DateTime.Now}] [LoadConfig] Configuration file contains an error. Using default configuration values.", this);
                 PrintError("ERROR: " + "Your configuration file contains an error. Using default configuration values.");
+                LogToFile("ErrorLog", $"[{DateTime.Now}] [LoadConfig] Configuration file contains an error. Using default configuration values.", this);
+                LogToFile("ErrorLog", $"[{DateTime.Now}] [LoadConfig] {ex.Message}.", this);
 
                 LoadDefaultConfig();
             }
@@ -168,6 +169,7 @@ namespace Oxide.Plugins
                 {
                     PrintDebug($"[ValidateSecret] WordPress response error. See oxide/logs/WPBridge for more.");
                     LogToFile("ErrorLog",$"[{DateTime.Now}] [ValidateSecret] -> {responseString} ",this);
+                    LogToFile("ErrorLog",$"[{DateTime.Now}] [ValidateSecret] -> {ex} ",this);
 
                 }
                 if(wpResponse == null)
@@ -207,6 +209,7 @@ namespace Oxide.Plugins
                     {
                         PrintDebug($"[SendPlayerData] WordPress response error. See oxide/logs/WPBridge for more.");
                         LogToFile("ErrorLog", $"[{DateTime.Now}] [SendPlayerData] -> {responseString} ", this);
+                        LogToFile("ErrorLog", $"[{DateTime.Now}] [SendPlayerData] -> {ex.Message} ", this);
 
                     }
                     if (wpResponse == null)
@@ -249,6 +252,7 @@ namespace Oxide.Plugins
                 {
                     PrintDebug($"[SendPlayerData] WordPress response error. See oxide/logs/WPBridge for more.");
                     LogToFile("ErrorLog", $"[{DateTime.Now}] [SendPlayerData] -> {responseString}", this);
+                    LogToFile("ErrorLog", $"[{DateTime.Now}] [SendPlayerData] -> {ex.Message}", this);
                 }
                 if (wpResponse == null)
                 {

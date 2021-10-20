@@ -67,7 +67,7 @@ WordPress Bridge integrates [WordPress](https://wordpress.org/) with [uMod/Oxide
 
 ## Upcoming features
 
-+ **More Shortcode customization:** The different resources and containers that players loot.
++ **More Shortcode customization:** Extend the ability to further customize the generated blocks.
 
 ## FAQ
 + **Does this plugin have any plugin dependencies?**
