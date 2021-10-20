@@ -65,7 +65,6 @@ WordPress Bridge integrates [WordPress](https://wordpress.org/) with [uMod/Oxide
 + `/wip.isreserved` Check if is reserved or sharing stats.
 + `/wip.reserve` Toggles share/reserve statistics. **BY DEFAULT: share**
 
-
 ## Upcoming features
 
 + **More Shortcode customization:** The different resources and containers that players loot.
