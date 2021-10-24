@@ -7,7 +7,7 @@ WordPress Bridge integrates [WordPress](https://wordpress.org/) with [uMod/Oxide
 
 + Player and Server statistics exchange between Rust server and WordPress ([WordPress REST API](https://developer.wordpress.com/docs/api/)).
 + Tested up to **200 players** online simultaneously.
-+ Player chat commands. 
++ Player chat commands.
 
 ---
 
