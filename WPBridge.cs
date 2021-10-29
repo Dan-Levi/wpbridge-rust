@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-    [Info("WordPress Bridge", "Murky", "1.2.1")]
+    [Info("WordPress Bridge", "Murky", "1.2.11")]
     [Description("WordPress Bridge integrates Rust servers with Wordpress, making it possible to embed player and server statistics on your Wordpress site with shortcodes.")]
     internal class WPBridge : RustPlugin
     {
@@ -174,10 +174,7 @@ namespace Oxide.Plugins
                         return;
                     }
                     PrintDebug($"[TryValidateWordPressSecret] Secret validated");
-                    //syncTimer = timer.Every(_config.UpdateInterval, () =>
-                    //{
-                        Sync();
-                    //});
+                    Sync();
                 });
                 return;
             }
@@ -193,7 +190,6 @@ namespace Oxide.Plugins
         void Sync()
         {
             WPBServerData.UpdatePlayerCount();
-            //PrintDebug(WPBPlayerData.Count);
             UpdateWPBPlayers();
             wordPressRequest = new WordPressBridgeRequest(_config.Wordpress_Secret);
             wordPressRequest.SetServerData(WPBServerData);
@@ -211,7 +207,8 @@ namespace Oxide.Plugins
             stopWatch.Start();
             webRequester.Post(endPointUriSync, wordPressRequest, (code, json) =>
             {
-                //PrintDebug(json);
+                ClearWPBPlayerStats();
+                ClearWPBPlayerLoot();
                 if (code != 200)
                 {
                     PrintDebug("[Sync] Failed to read to response from WordPress");
@@ -219,17 +216,25 @@ namespace Oxide.Plugins
                     PrintDebug(json);
                     return;
                 }
-
-                WordPressBridgeResponse wordPressResponse = JsonConvert.DeserializeObject<WordPressBridgeResponse>(json);
-                if (wordPressResponse.code == "success")
+                WordPressBridgeResponse wordPressResponse = null;
+                try
+                {
+                    wordPressResponse = JsonConvert.DeserializeObject<WordPressBridgeResponse>(json);
+                }
+                catch (JsonReaderException jsonException)
                 {
                     stopWatch.Stop();
-                    long elapsedSeconds = stopWatch.ElapsedMilliseconds;
+                    PrintDebug($"[Sync] The exchange took {stopWatch.ElapsedMilliseconds} milliseconds but was unsuccessful.");
+                    stopWatch.Reset();
+                    PrintError("[Sync] [JsonReaderException] Error parsing JSON response!");
+                    PrintError(jsonException.Message);
+                    PrintError(json);
+                }
+                if (wordPressResponse != null && wordPressResponse.code == "success")
+                {
+                    stopWatch.Stop();
                     PrintDebug($"[Sync] The exchange took {stopWatch.ElapsedMilliseconds} milliseconds.");
                     stopWatch.Reset();
-                    PrintDebug($"[Sync] [ResponseFromWordpress] {wordPressResponse.message}");
-                    ClearWPBPlayerStats();
-                    ClearWPBPlayerLoot();
                 }
                 if (WPBPlayersLeftSteamIds != null && WPBPlayersLeftSteamIds.Count > 0)
                 {
@@ -239,10 +244,8 @@ namespace Oxide.Plugins
                         WPBPlayersLeftSteamIds.Clear();
                     }
                 }
-                timer.Once(_config.UpdateInterval, () => {
-                    Sync();
-                });
             });
+            timer.Once(_config.UpdateInterval, Sync);
         }
         #endregion
 
@@ -988,8 +991,6 @@ namespace Oxide.Plugins
                 {
                     serializedRequest = JsonConvert.SerializeObject(data);
                 }
-                //_instance.PrintDebug(serializedRequest);
-                
                 _instance.webrequest.Enqueue(url,serializedRequest, (responseCode, responseString) => {
                     response(responseCode, responseString);
                     return;
