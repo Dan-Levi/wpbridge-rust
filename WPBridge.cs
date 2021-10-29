@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-    [Info("WordPress Bridge", "Murky", "1.2.0")]
+    [Info("WordPress Bridge", "Murky", "1.2.1")]
     [Description("WordPress Bridge integrates Rust servers with Wordpress, making it possible to embed player and server statistics on your Wordpress site with shortcodes.")]
     internal class WPBridge : RustPlugin
     {
@@ -174,10 +174,10 @@ namespace Oxide.Plugins
                         return;
                     }
                     PrintDebug($"[TryValidateWordPressSecret] Secret validated");
-                    syncTimer = timer.Every(_config.UpdateInterval, () =>
-                    {
+                    //syncTimer = timer.Every(_config.UpdateInterval, () =>
+                    //{
                         Sync();
-                    });
+                    //});
                 });
                 return;
             }
@@ -239,6 +239,9 @@ namespace Oxide.Plugins
                         WPBPlayersLeftSteamIds.Clear();
                     }
                 }
+                timer.Once(_config.UpdateInterval, () => {
+                    Sync();
+                });
             });
         }
         #endregion
@@ -438,6 +441,7 @@ namespace Oxide.Plugins
         {
             if(!_isConfiguredAndReady)
             {
+
                 timer.Once(2f, () =>
                 {
                     OnServerInitialized(false);
@@ -446,6 +450,7 @@ namespace Oxide.Plugins
             }
             WPBRidgeInit();
         }
+
         #endregion
 
         #region Player Hooks
@@ -984,10 +989,11 @@ namespace Oxide.Plugins
                     serializedRequest = JsonConvert.SerializeObject(data);
                 }
                 //_instance.PrintDebug(serializedRequest);
+                
                 _instance.webrequest.Enqueue(url,serializedRequest, (responseCode, responseString) => {
                     response(responseCode, responseString);
                     return;
-                }, _instance, Core.Libraries.RequestMethod.POST,_headers, 10000f);
+                }, _instance, Core.Libraries.RequestMethod.POST,_headers);
             }
 
             internal void Get(string url, object data, Action<int, string> response)
@@ -1061,6 +1067,74 @@ namespace Oxide.Plugins
         {
             public List<string> methods { get; set; }
         }
+        #endregion
+
+        #endregion
+
+        #region Commands
+
+        #region General commands
+
+        [ChatCommand("wip.help")]
+        void HelpCommand(BasePlayer basePlayer, string command, string[] args)
+        {
+            if (basePlayer == null) return;
+            basePlayer.ChatMessage($"[WIP] " +
+                $"Available commands:\n\n" +
+                $"/wip.reserve\nToggles share statistics.\nDEFAULT: share statistics\n\n" +
+                $"/wip.isreserved\nCheck if you are sharing your statistics.");
+        }
+
+        #endregion
+
+        #region Debug commands
+
+        [ConsoleCommand("wip.debug")]
+        void ToggleDebug(ConsoleSystem.Arg arg)
+        {
+            BasePlayer basePlayer = arg.Player();
+            if(basePlayer != null && basePlayer.IsAdmin)
+            {
+                _config.Debug = !_config.Debug;
+                SaveConfig();
+            } else
+            {
+                _config.Debug = !_config.Debug;
+                SaveConfig();
+            }
+        }
+
+        #endregion
+
+        #region Reservation commands
+
+        [ChatCommand("wip.isreserved")]
+        void IsReserved(BasePlayer basePlayer, string command, string[] args)
+        {
+            string isReservedString = WPBPlayerIsReserved(basePlayer) ? "not " : "";
+            basePlayer.ChatMessage($"[WIP] You are currently {isReservedString}sharing statistics.");
+        }
+
+        [ChatCommand("wip.reserve")]
+        void ReserveCommand(BasePlayer basePlayer, string command, string[] args)
+        {
+            if (basePlayer == null) return;
+            if (!WPBPlayerIsReserved(basePlayer))
+            {
+                var existingPlayer = GetWPBPlayer(basePlayer);
+                if (existingPlayer != null) RemoveWPBPlayer(basePlayer);
+                permission.AddUserGroup(basePlayer.UserIDString, _reservedPlayerGroupName);
+                basePlayer.ChatMessage("[WIP] Reserved. Your statistics are not shared.");
+            }
+            else
+            {
+                var existingPlayer = GetWPBPlayer(basePlayer);
+                permission.RemoveUserGroup(basePlayer.UserIDString, _reservedPlayerGroupName);
+                if (existingPlayer == null) InsertWPBPlayer(new WPBPlayer(basePlayer));
+                basePlayer.ChatMessage("[WIP] Reservation removed. Your statistics are shared.");
+            }
+        }
+
         #endregion
 
         #endregion
