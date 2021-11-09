@@ -397,6 +397,33 @@ namespace Oxide.Plugins
         #endregion
 
         #region Rust Hooks
+
+        #region Localization
+        protected override void LoadDefaultMessages()
+        {
+            lang.RegisterMessages(new Dictionary<string, string>
+            {
+                {"Endpoint connection established", "Endpoint connection established"},
+                {"Could not communicate with WordPress Rest API", "Couldn't communicate with WordPress Rest API using endpoint"},
+                {"Could not authenticate with WPBridge for Rust", "Couldn't authenticate with WPBridge for Rust. Is the plugin installed and activated?"},
+                {"TypeWIPHelp", "Type /wip.help to see a list of commands"},
+                {"You are currently", "You are currently"},
+                {"sharing your statistics", "sharing your statistics. You can always toggle this on/off using chatcommand /wip.reserve"},
+                {"player looted", "Player looted"},
+                {"which currently is not tracked", "which currently is not tracked."},
+                {"Available commands", "Available commands"},
+                {"Toggles share statistics.", "Toggles share statistics."},
+                {"share statistics", "share statistics"},
+                {"sharing statistics", "sharing statistics."},
+                {"Check if you are sharing your statistics", "Check if you are sharing your statistics."},
+                {"Your statistics are not shared", "Reserved. Your statistics are not shared."},
+                {"Your statistics are shared", "Reservation removed. Your statistics are shared."},
+                {"DEFAULT", "DEFAULT"},
+                {"not", "not"},
+            }, this);
+        }
+        #endregion
+
         #region Server Hooks
         void Init()
         {
@@ -415,7 +442,7 @@ namespace Oxide.Plugins
                 WordPressSiteIsUp((err,json) => {
                     if (err)
                     {
-                        PrintDebug($"[INIT] Couldn't communicate with WordPress Rest API using endpoint: {_config.Wordpress_Site_URL}wp-json");
+                        PrintDebug($"[INIT] {GetMsg("Could not communicate with WordPress Rest API")}: {_config.Wordpress_Site_URL}wp-json");
                         timer.Once(5, () =>
                         {
                             Init();
@@ -425,7 +452,7 @@ namespace Oxide.Plugins
                     var wpJson = JsonConvert.DeserializeObject<WordPressJson>(json);
                     if(!WordPressPluginInstalled(wpJson))
                     {
-                        PrintDebug($"[WordPress] Couldn't authenticate with WPBridge for Rust. Is the plugin installed and activated?");
+                        PrintDebug($"[WordPress] {GetMsg("Could not authenticate with WPBridge for Rust")}");
                         timer.Once(5, () =>
                         {
                             Init();
@@ -436,7 +463,7 @@ namespace Oxide.Plugins
                     _isConfiguredAndReady = true;
                     endPointUriSecret = $"{_config.Wordpress_Site_URL}index.php/wp-json/wpbridge/secret";
                     endPointUriSync = $"{_config.Wordpress_Site_URL}index.php/wp-json/wpbridge/player-stats";
-                    PrintDebug("Endpoint connection established");
+                    PrintDebug(GetMsg("Endpoint connection established"));
                 });
             });
         }
@@ -470,7 +497,7 @@ namespace Oxide.Plugins
             string isReservedString;
             if (WPBPlayerIsReserved(basePlayer))
             {
-                isReservedString = "not ";
+                isReservedString = GetMsg("not") + " ";
                 WPBPlayer wpbPlayer = GetWPBPlayer(basePlayer);
                 if (wpbPlayer != null) RemoveWPBPlayer(basePlayer);
             }
@@ -478,8 +505,8 @@ namespace Oxide.Plugins
             {
                 isReservedString = "";
             }
-            basePlayer.ChatMessage($"[WIP] Type /wip.help to see a list of commands");
-            basePlayer.ChatMessage($"[WIP] You are currently {isReservedString}sharing your statistics. You can always toggle this on/off using chatcommand /wip.reserve");
+            basePlayer.ChatMessage($"[WIP] {GetMsg("TypeWIPHelp")}");
+            basePlayer.ChatMessage($"[WIP] {GetMsg("You are currently")} {isReservedString}{GetMsg("sharing your statistics")}");
         }
         void OnUserConnected(IPlayer iPlayer)
         {
@@ -633,7 +660,7 @@ namespace Oxide.Plugins
                     wpbPlayer.Stats.LootHackable++;
                     break;
                 default:
-                    PrintDebug($"[OnLootEntity] Player looted \"{lootContainerName}\" which currently is not tracked.");
+                    PrintDebug($"[OnLootEntity] {GetMsg("player looted")} \"{lootContainerName}\" {GetMsg("which currently is not tracked")}");
                     break;
             }
         }
@@ -1081,9 +1108,9 @@ namespace Oxide.Plugins
         {
             if (basePlayer == null) return;
             basePlayer.ChatMessage($"[WIP] " +
-                $"Available commands:\n\n" +
-                $"/wip.reserve\nToggles share statistics.\nDEFAULT: share statistics\n\n" +
-                $"/wip.isreserved\nCheck if you are sharing your statistics.");
+                $"{GetMsg("Available commands")}:\n\n" +
+                $"/wip.reserve\n{GetMsg("Toggles share statistics")}\n{GetMsg("DEFAULT")}: {GetMsg("share statistics")}.\n\n" +
+                $"/wip.isreserved\n{GetMsg("Check if you are sharing your statistics")}");
         }
 
         #endregion
@@ -1112,8 +1139,8 @@ namespace Oxide.Plugins
         [ChatCommand("wip.isreserved")]
         void IsReserved(BasePlayer basePlayer, string command, string[] args)
         {
-            string isReservedString = WPBPlayerIsReserved(basePlayer) ? "not " : "";
-            basePlayer.ChatMessage($"[WIP] You are currently {isReservedString}sharing statistics.");
+            string isReservedString = WPBPlayerIsReserved(basePlayer) ? GetMsg("not") + " " : "";
+            basePlayer.ChatMessage($"[WIP] {GetMsg("You are currently")} {isReservedString}{GetMsg("sharing statistics")}.");
         }
 
         [ChatCommand("wip.reserve")]
@@ -1125,14 +1152,14 @@ namespace Oxide.Plugins
                 var existingPlayer = GetWPBPlayer(basePlayer);
                 if (existingPlayer != null) RemoveWPBPlayer(basePlayer);
                 permission.AddUserGroup(basePlayer.UserIDString, _reservedPlayerGroupName);
-                basePlayer.ChatMessage("[WIP] Reserved. Your statistics are not shared.");
+                basePlayer.ChatMessage($"[WIP] {GetMsg("Your statistics are not shared")}");
             }
             else
             {
                 var existingPlayer = GetWPBPlayer(basePlayer);
                 permission.RemoveUserGroup(basePlayer.UserIDString, _reservedPlayerGroupName);
                 if (existingPlayer == null) InsertWPBPlayer(new WPBPlayer(basePlayer));
-                basePlayer.ChatMessage("[WIP] Reservation removed. Your statistics are shared.");
+                basePlayer.ChatMessage($"[WIP] {GetMsg("Your statistics are shared")}");
             }
         }
 
@@ -1160,6 +1187,7 @@ namespace Oxide.Plugins
         #endregion
 
         #region Helper Methods
+        private string GetMsg(string key) => lang.GetMessage(key, this);
         public static bool ValidHttpURL(string s)
         {
             Uri uriResult;
