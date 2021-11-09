@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-    [Info("WordPress Bridge", "Murky", "1.2.11")]
+    [Info("WordPress Bridge", "Murky", "1.2.12")]
     [Description("WordPress Bridge integrates Rust servers with Wordpress, making it possible to embed player and server statistics on your Wordpress site with shortcodes.")]
     internal class WPBridge : RustPlugin
     {
