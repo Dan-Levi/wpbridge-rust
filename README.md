@@ -87,6 +87,9 @@ You can [create a thread](https://umod.org/community/wordpress-bridge/thread/cre
 
 ## Changelog
 
+### `1.2.12` 
+Added localization. Default language file can be found in `oxide/lang/en/WPBridge.json`.
+
 ### `1.0.125` 
 Plugin now prints exceptions to log file
 
